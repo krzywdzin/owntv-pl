@@ -67,13 +67,13 @@ internal fun SubscriptionExpiredScreen(
             Spacer(Modifier.height(32.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OwnTVButton(
-                    text = stringResource(R.string.subscription_retry),
+                    label = stringResource(R.string.subscription_retry),
                     onClick = onRetry,
                     style = OwnTVButtonStyle.SECONDARY,
                 )
                 if (!supportPhone.isNullOrBlank()) {
                     OwnTVButton(
-                        text = stringResource(R.string.subscription_call_provider),
+                        label = stringResource(R.string.subscription_call_provider),
                         onClick = {
                             val intent = Intent(
                                 Intent.ACTION_DIAL,
