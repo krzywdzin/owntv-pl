@@ -89,6 +89,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import tv.own.owntv.R
@@ -105,6 +106,7 @@ import tv.own.owntv.features.update.UpdateDialog
 import tv.own.owntv.features.settings.BackupScreen
 import tv.own.owntv.features.settings.ManageSourcesScreen
 import tv.own.owntv.features.settings.SettingsViewModel
+import tv.own.owntv.features.service.ServiceModeStore
 import tv.own.owntv.core.nav.MainSection
 import tv.own.owntv.ui.components.BrandLockup
 import tv.own.owntv.ui.components.BrowseMode
@@ -330,6 +332,8 @@ fun SettingsScreen(
         }
     }
     val settingsVm: SettingsViewModel = koinViewModel()
+    val serviceModeStore: ServiceModeStore = koinInject()
+    val serviceMode by serviceModeStore.enabled.collectAsStateWithLifecycle()
     val appIcon by settingsVm.appIcon.collectAsStateWithLifecycle()
     val brandAccent by settingsVm.brandAccentTriangle.collectAsStateWithLifecycle()
     val languageVm: LanguageSettingsViewModel = koinViewModel()
@@ -456,7 +460,13 @@ fun SettingsScreen(
     CompositionLocalProvider(tv.own.owntv.features.settings.LocalSettingsSearch provides openSearch) {
     when (tab) {
         SettingsTab.LANGUAGE -> { LanguageSettingsScreen(onBack = { tab = SettingsTab.ROOT }, modifier = modifier) }
-        SettingsTab.SOURCES -> { ManageSourcesScreen(onBack = { tab = SettingsTab.ROOT }, modifier = modifier) }
+        SettingsTab.SOURCES -> {
+            ManageSourcesScreen(
+                onBack = { tab = SettingsTab.ROOT },
+                modifier = modifier,
+                serviceMode = serviceMode,
+            )
+        }
         SettingsTab.EPG -> { tv.own.owntv.features.settings.EpgSourcesScreen(onBack = { tab = SettingsTab.ROOT; consumeEpgAdd = false }, modifier = modifier, startOnAdd = consumeEpgAdd) }
         SettingsTab.BACKUP -> { Toned(TileTone.TERTIARY) { BackupScreen(onBack = { tab = SettingsTab.ROOT }, modifier = sub) } }
         SettingsTab.LOCAL_SYNC -> { Toned(TileTone.TERTIARY) { LocalSyncScreen(onBack = { tab = SettingsTab.ROOT }, modifier = sub) } }
@@ -776,16 +786,6 @@ fun SettingsScreen(
         // folder moved to the Downloads screen. With all four gone the group had nothing left in it.
         RootGroup("group_app", stringResource(R.string.settings_app_group), OwnTVIcon.INFO, stringResource(R.string.settings_group_summary_app)),
         RootRow(
-            tabRowKey(SettingsTab.LANGUAGE), TileTone.PRIMARY, OwnTVIcon.LANGUAGE,
-            heading = stringResource(R.string.settings_group_app),
-            title = stringResource(R.string.settings_language),
-            desc = stringResource(R.string.settings_language_description),
-            chip = languageChip,
-            chipTone = TileTone.PRIMARY,
-            focus = rowFocus.getValue(SettingsTab.LANGUAGE),
-            onClick = { open(SettingsTab.LANGUAGE) },
-        ),
-        RootRow(
             "app_icon", TileTone.SECONDARY, OwnTVIcon.PALETTE,
             title = stringResource(R.string.settings_app_icon), desc = stringResource(R.string.settings_app_icon_summary),
             chip = stringResource(appIcon.label), chipTone = TileTone.SECONDARY,
@@ -836,6 +836,32 @@ fun SettingsScreen(
             focus = rowFocus.getValue(SettingsTab.DNS),
             onClick = { open(SettingsTab.DNS) },
         ),
+        if (serviceMode) RootGroup(
+            "group_service",
+            stringResource(R.string.service_mode_title),
+            OwnTVIcon.SETTINGS,
+            stringResource(R.string.service_mode_description),
+        ) else null,
+        if (serviceMode) RootRow(
+            tabRowKey(SettingsTab.BACKUP), TileTone.TERTIARY, OwnTVIcon.DOWNLOADS,
+            title = stringResource(R.string.settings_backup_restore),
+            desc = stringResource(R.string.service_mode_backup_description),
+            focus = rowFocus.getValue(SettingsTab.BACKUP),
+            onClick = { open(SettingsTab.BACKUP) },
+        ) else null,
+        if (serviceMode) RootRow(
+            tabRowKey(SettingsTab.LOCAL_SYNC), TileTone.TERTIARY, OwnTVIcon.PHONE,
+            title = stringResource(R.string.local_sync_title),
+            desc = stringResource(R.string.service_mode_local_sync_description),
+            focus = rowFocus.getValue(SettingsTab.LOCAL_SYNC),
+            onClick = { open(SettingsTab.LOCAL_SYNC) },
+        ) else null,
+        if (serviceMode) RootRow(
+            "service_mode_exit", TileTone.SECONDARY, OwnTVIcon.CLOSE,
+            title = stringResource(R.string.service_mode_exit),
+            desc = stringResource(R.string.service_mode_exit_description),
+            onClick = { serviceModeStore.deactivate() },
+        ) else null,
         // Plan Z — About and the error log left with the Data group. A page of facts and a log are
         // not preferences; both are More rows now, opening the very same dialogs.
     )
@@ -990,8 +1016,6 @@ fun SettingsScreen(
         // haystack, so typing "video player" finds everything on that screen.
     val searchResults: List<SettingsSearchEntry> = if (searchQuery.isBlank()) emptyList() else {
         val entries = listOfNotNull(
-            SettingsSearchEntry(stringResource(R.string.settings_app_group), stringResource(R.string.settings_language), stringResource(R.string.settings_search_keywords_language), OwnTVIcon.LANGUAGE, TileTone.PRIMARY,
-                chip = languageChip, chipTone = TileTone.PRIMARY) { open(SettingsTab.LANGUAGE) },
             SettingsSearchEntry(stringResource(R.string.settings_group_profile), stringResource(R.string.profiles_title), stringResource(R.string.settings_search_keywords_profiles), OwnTVIcon.PERSON, TileTone.SECONDARY) { searchQuery = ""; selectedGroup = SettingsGroup.PROFILE.ordinal },
             SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.settings_playlists), stringResource(R.string.settings_search_keywords_playlists), OwnTVIcon.PLAYLIST, TileTone.PRIMARY) { open(SettingsTab.SOURCES) },
             SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.settings_epg_sources), stringResource(R.string.settings_search_keywords_epg), OwnTVIcon.EPG, TileTone.PRIMARY) { open(SettingsTab.EPG) },

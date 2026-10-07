@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -53,10 +55,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.Text
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import tv.own.owntv.R
 import tv.own.owntv.core.nav.MainSection
 import tv.own.owntv.core.settings.SettingsRepository.NavLength
 import tv.own.owntv.core.settings.SettingsRepository.NavSize
+import tv.own.owntv.features.service.ServiceModeStore
 import tv.own.owntv.ui.components.BrandMark
 import tv.own.owntv.ui.components.OwnTVIcon
 import tv.own.owntv.ui.components.Wordmark
@@ -157,6 +161,25 @@ fun StageRail(
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val scope = rememberCoroutineScope()
     var hasFocus by remember { mutableStateOf(false) }
+    val serviceMode: ServiceModeStore = koinInject()
+    var serviceTapCount by remember { mutableIntStateOf(0) }
+    var serviceTapWindowStart by remember { mutableLongStateOf(0L) }
+
+    fun registerServiceTap() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (serviceTapWindowStart == 0L || now - serviceTapWindowStart > SERVICE_TAP_WINDOW_MS) {
+            serviceTapWindowStart = now
+            serviceTapCount = 1
+        } else {
+            serviceTapCount += 1
+        }
+        if (serviceTapCount >= SERVICE_TAP_COUNT) {
+            serviceMode.activate()
+            serviceTapCount = 0
+            serviceTapWindowStart = 0L
+        }
+    }
+
     val focusSection = when {
         selected == MainSection.SETTINGS || selected == MainSection.MORE -> MainSection.SETTINGS
         selected == MainSection.SEARCH || selected in visibleSections -> selected
@@ -265,7 +288,10 @@ fun StageRail(
                     open = open,
                     active = section == selected ||
                         (section == MainSection.MORE && selected == MainSection.SETTINGS),
-                    onClick = { onSelect(section) },
+                    onClick = {
+                        if (section == MainSection.SETTINGS) registerServiceTap()
+                        onSelect(section)
+                    },
                     modifier = if (section == focusSection) Modifier.focusRequester(selectedItemFocusRequester) else Modifier,
                 )
             }
@@ -475,3 +501,6 @@ internal fun RailAvatar(initial: String, size: Int = 46, textSize: Int = 20, ava
         Text(initial, style = stageText(textSize, 800), color = Color(0xFF2A0D12), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
+
+private const val SERVICE_TAP_COUNT = 7
+private const val SERVICE_TAP_WINDOW_MS = 4_000L

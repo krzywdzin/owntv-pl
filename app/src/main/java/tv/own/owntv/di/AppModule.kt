@@ -7,6 +7,7 @@ import tv.own.owntv.features.activation.ActivationClient
 import tv.own.owntv.features.activation.ActivationStore
 import tv.own.owntv.features.activation.ActivationViewModel
 import tv.own.owntv.features.activation.DeviceIdentity
+import tv.own.owntv.features.service.ServiceModeStore
 import tv.own.owntv.features.more.MoreCountsViewModel
 import tv.own.owntv.features.shell.RailCountsViewModel
 import org.koin.dsl.module
@@ -53,6 +54,7 @@ val appModule = module {
     singleOf(::ActivationClient)
     singleOf(::ActivationStore)
     singleOf(::DeviceIdentity)
+    singleOf(::ServiceModeStore)
     viewModelOf(::ActivationViewModel)
     viewModelOf(::ShellViewModel)
     // Home's rails are core's, shared with the phone app; the view model only decorates them.

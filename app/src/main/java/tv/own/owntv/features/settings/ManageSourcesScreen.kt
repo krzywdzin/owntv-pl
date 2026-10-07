@@ -67,7 +67,11 @@ import tv.own.owntv.ui.theme.OwnTVTheme
 
 /** Phase 13 — list / add / re-sync / delete the active profile's IPTV sources. */
 @Composable
-fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun ManageSourcesScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    serviceMode: Boolean = false,
+) {
     val vm: SettingsViewModel = koinViewModel()
     val sources by vm.sources.collectAsStateWithLifecycle()
     val importState by vm.importState.collectAsStateWithLifecycle()
@@ -287,11 +291,13 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 onBack = onBack,
                 handleBack = false,
                 toolbar = {
-                    tv.own.owntv.ui.stage.StageTool(
-                        stringResource(R.string.settings_sources_add), onClick = { showAdd = true },
-                        icon = tv.own.owntv.ui.components.OwnTVIcon.ADD, boxed = true,
-                        modifier = Modifier.focusRequester(addFocus),
-                    )
+                    if (serviceMode) {
+                        tv.own.owntv.ui.stage.StageTool(
+                            stringResource(R.string.settings_sources_add), onClick = { showAdd = true },
+                            icon = tv.own.owntv.ui.components.OwnTVIcon.ADD, boxed = true,
+                            modifier = Modifier.focusRequester(addFocus),
+                        )
+                    }
                 },
             ) {
                 if (sources.isEmpty()) StageSettingsNote(stringResource(R.string.settings_sources_empty), null)
@@ -307,6 +313,7 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                     SourceRow(
                         source = source,
                         managed = vm.isManagedSource(source.id),
+                        serviceMode = serviceMode,
                         autoRefresh = playlistAutoRefresh[source.id] ?: PlaylistRefresh.OFF,
                         isDefault = isDefault,
                         expiry = sourceExpiry[source.id],
@@ -375,6 +382,7 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
 private fun SourceRow(
     source: SourceEntity,
     managed: Boolean,
+    serviceMode: Boolean,
     autoRefresh: PlaylistRefresh,
     isDefault: Boolean,
     expiry: String?,
@@ -427,7 +435,7 @@ private fun SourceRow(
         emptyList()
     } else {
         buildList {
-            if (!managed) {
+            if (serviceMode && !managed) {
                 add(StageAction(OwnTVIcon.PENCIL, stringResource(R.string.settings_sources_edit), onEdit))
             }
             // Managed sources may be inspected/re-synced, but their endpoint and credentials are
@@ -440,7 +448,7 @@ private fun SourceRow(
                     if (syncState.isActive) onCancelSync else onResync,
                 ),
             )
-            if (!managed) {
+            if (serviceMode && !managed) {
                 add(StageAction(OwnTVIcon.TRASH, stringResource(R.string.settings_sources_delete), onDelete, danger = true))
             }
         }

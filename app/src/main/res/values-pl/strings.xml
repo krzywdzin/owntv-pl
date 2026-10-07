@@ -21,4 +21,10 @@
     <string name="activation_default_profile">Dom</string>
     <string name="activation_default_source">Telewizja</string>
     <string name="activation_managed_source">Źródło zarządzane</string>
+    <string name="service_mode_title">Tryb serwisowy</string>
+    <string name="service_mode_description">Narzędzia techniczne dostępne tylko podczas tej sesji.</string>
+    <string name="service_mode_backup_description">Kopia i przywracanie danych technicznych.</string>
+    <string name="service_mode_local_sync_description">Synchronizacja techniczna z drugim urządzeniem.</string>
+    <string name="service_mode_exit">Wyłącz tryb serwisowy</string>
+    <string name="service_mode_exit_description">Po wyłączeniu narzędzia techniczne zostaną ponownie ukryte.</string>
 </resources>
