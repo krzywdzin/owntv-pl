@@ -35,6 +35,16 @@ class ActivationStore(context: Context) {
     fun isManagedSource(sourceId: Long): Boolean =
         preferences.getLong(KEY_MANAGED_SOURCE_ID, -1L) == sourceId
 
+    fun updateMetadata(expires: String?, supportPhone: String?) {
+        val current = read() ?: return
+        save(
+            code = current.code,
+            managedSourceId = current.managedSourceId,
+            expires = expires,
+            supportPhone = supportPhone ?: current.supportPhone,
+        )
+    }
+
     fun clear() {
         preferences.edit().clear().apply()
     }

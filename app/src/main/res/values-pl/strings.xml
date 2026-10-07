@@ -27,4 +27,9 @@
     <string name="service_mode_local_sync_description">Synchronizacja techniczna z drugim urządzeniem.</string>
     <string name="service_mode_exit">Wyłącz tryb serwisowy</string>
     <string name="service_mode_exit_description">Po wyłączeniu narzędzia techniczne zostaną ponownie ukryte.</string>
+    <string name="subscription_expired_title">Subskrypcja wygasła</string>
+    <string name="subscription_expired_body">Odnów subskrypcję u dostawcy usługi. Aplikacja odblokuje się automatycznie po odnowieniu.</string>
+    <string name="subscription_support_phone">Kontakt: %1$s</string>
+    <string name="subscription_retry">Sprawdź ponownie</string>
+    <string name="subscription_call_provider">Zadzwoń do dostawcy</string>
 </resources>

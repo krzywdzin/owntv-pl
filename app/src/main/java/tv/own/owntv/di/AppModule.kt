@@ -6,6 +6,7 @@ import org.koin.core.module.dsl.viewModelOf
 import tv.own.owntv.features.activation.ActivationClient
 import tv.own.owntv.features.activation.ActivationStore
 import tv.own.owntv.features.activation.ActivationViewModel
+import tv.own.owntv.features.activation.SubscriptionViewModel
 import tv.own.owntv.features.activation.DeviceIdentity
 import tv.own.owntv.features.service.ServiceModeStore
 import tv.own.owntv.features.more.MoreCountsViewModel
@@ -56,6 +57,7 @@ val appModule = module {
     singleOf(::DeviceIdentity)
     singleOf(::ServiceModeStore)
     viewModelOf(::ActivationViewModel)
+    viewModelOf(::SubscriptionViewModel)
     viewModelOf(::ShellViewModel)
     // Home's rails are core's, shared with the phone app; the view model only decorates them.
     // LiveEpgReader is registered because GuideReader now needs one: a guide row whose stored data
