@@ -57,6 +57,7 @@ import tv.own.owntv.core.settings.SubtitleStyle
 import tv.own.owntv.core.theme.AccentColor
 import tv.own.owntv.core.theme.ThemeMode
 import tv.own.owntv.core.theme.UiZoom
+import tv.own.owntv.features.activation.ActivationStore
 import tv.own.owntv.core.settings.EpgAutoRefresh
 
 /** Phase 13 — manage IPTV sources (list / add / re-sync / delete) for the active profile. */
@@ -97,6 +98,7 @@ class SettingsViewModel(
     private val enginePool: tv.own.owntv.player.LiveEnginePool,
     // Adding a playlist is core's sequence, not a copy of it — see [importState].
     private val importer: SourceImporter,
+    private val activationStore: ActivationStore,
 ) : ViewModel() {
     companion object {
         private const val TAG = "OwnTVHome"
@@ -1111,6 +1113,7 @@ class SettingsViewModel(
         preferHls: Boolean = false,
         httpReferer: String = "",
     ) {
+        if (activationStore.isManagedSource(id)) return
         viewModelScope.launch {
             val existing = sourceDao.getById(id) ?: return@launch
             // A Stalker edit re-canonicalizes the MAC; a garbled edit keeps the stored one. On
@@ -1418,6 +1421,7 @@ class SettingsViewModel(
     val deletingSourceIds: StateFlow<Set<Long>> = _deletingSourceIds.asStateFlow()
 
     fun delete(source: SourceEntity) {
+        if (activationStore.isManagedSource(source.id)) return
         if (source.id in _deletingSourceIds.value) return
         viewModelScope.launch {
             Log.d(TAG, "delete sourceId=${source.id}")
@@ -1437,6 +1441,8 @@ class SettingsViewModel(
             }
         }
     }
+
+    fun isManagedSource(sourceId: Long): Boolean = activationStore.isManagedSource(sourceId)
 
     fun resetImport() = importer.reset()
 

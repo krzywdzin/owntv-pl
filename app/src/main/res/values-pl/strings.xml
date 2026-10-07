@@ -20,4 +20,5 @@
     <string name="activation_error_source">Kod jest poprawny, ale nie udało się skonfigurować źródła. Spróbuj ponownie.</string>
     <string name="activation_default_profile">Dom</string>
     <string name="activation_default_source">Telewizja</string>
+    <string name="activation_managed_source">Źródło zarządzane</string>
 </resources>

@@ -9,7 +9,7 @@ internal data class StoredActivation(
     val supportPhone: String?,
 )
 
-internal class ActivationStore(context: Context) {
+class ActivationStore(context: Context) {
     private val preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun save(code: String, managedSourceId: Long, expires: String?, supportPhone: String?) {
