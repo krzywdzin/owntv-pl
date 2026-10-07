@@ -46,7 +46,7 @@ import tv.own.owntv.ui.theme.MidnightGlassRadii
 import tv.own.owntv.ui.theme.MidnightGlassTv
 
 @Composable
-fun ActivationScreen(
+internal fun ActivationScreen(
     onActivated: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ActivationViewModel = koinViewModel(),
