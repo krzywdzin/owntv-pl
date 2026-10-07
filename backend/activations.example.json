@@ -1,0 +1,11 @@
+{
+  "DEMO2026": {
+    "server": "xtream-codes-mock-server-337348938954.europe-west1.run.app",
+    "port": 443,
+    "https": true,
+    "username": "test_user",
+    "password": "test_pass",
+    "expires": "2027-12-31T23:59:59Z",
+    "support_phone": "+48 000 000 000"
+  }
+}
