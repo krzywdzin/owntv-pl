@@ -90,10 +90,13 @@ enum class RailState {
  */
 data class NowPlayingRail(val logoUrl: String?, val audioMode: Boolean, val playing: Boolean)
 
-/** The mockup's rail order (`screens.js` `cRail`): Search first, the Guide right after Live TV, More last. */
+/** Product rail: exactly five customer destinations. Home remains the startup surface. */
 private val StageRailOrder = listOf(
-    MainSection.SEARCH, MainSection.HOME, MainSection.LIVE_TV, MainSection.EPG,
-    MainSection.MOVIES, MainSection.SERIES, MainSection.DOWNLOADS,
+    MainSection.SEARCH,
+    MainSection.LIVE_TV,
+    MainSection.MOVIES,
+    MainSection.SERIES,
+    MainSection.SETTINGS,
 )
 
 /** The rail's width with names (P1b): Normal 280 · Wide 340 · Extra wide 400; Compact is the 84 capsule. */
@@ -154,13 +157,16 @@ fun StageRail(
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val scope = rememberCoroutineScope()
     var hasFocus by remember { mutableStateOf(false) }
-    // Search, Settings and More all land on a rail item: Search has its own, Settings lives behind More.
     val focusSection = when {
-        selected == MainSection.SETTINGS || selected == MainSection.MORE -> MainSection.MORE
+        selected == MainSection.SETTINGS || selected == MainSection.MORE -> MainSection.SETTINGS
         selected == MainSection.SEARCH || selected in visibleSections -> selected
-        else -> StageRailOrder.firstOrNull { it in visibleSections } ?: MainSection.MORE
+        else -> StageRailOrder.firstOrNull {
+            it == MainSection.SEARCH || it == MainSection.SETTINGS || it in visibleSections
+        } ?: MainSection.SETTINGS
     }
-    val items = StageRailOrder.filter { it == MainSection.SEARCH || it in visibleSections } + MainSection.MORE
+    val items = StageRailOrder.filter {
+        it == MainSection.SEARCH || it == MainSection.SETTINGS || it in visibleSections
+    }
 
     // Slide in from the edge (320 ms, or a snap with animations off): the capsule when it leaves
     // HIDDEN, the open rail each time it opens.
@@ -280,7 +286,8 @@ private val MainSection.stageIcon: OwnTVIcon
         MainSection.MOVIES -> OwnTVIcon.MOVIES
         MainSection.SERIES -> OwnTVIcon.SERIES
         MainSection.DOWNLOADS -> OwnTVIcon.DOWNLOADS
-        MainSection.MORE, MainSection.SETTINGS -> OwnTVIcon.TILES
+        MainSection.SETTINGS -> OwnTVIcon.SETTINGS
+        MainSection.MORE -> OwnTVIcon.TILES
     }
 
 /** `.edge`: 7 × 150 at the screen edge, accent, glowing 22 px at 80% and 60 px at 35%, 90% opaque. */

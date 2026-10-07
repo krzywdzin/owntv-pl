@@ -3,6 +3,10 @@ package tv.own.owntv.di
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import tv.own.owntv.features.activation.ActivationClient
+import tv.own.owntv.features.activation.ActivationStore
+import tv.own.owntv.features.activation.ActivationViewModel
+import tv.own.owntv.features.activation.DeviceIdentity
 import tv.own.owntv.features.more.MoreCountsViewModel
 import tv.own.owntv.features.shell.RailCountsViewModel
 import org.koin.dsl.module
@@ -46,6 +50,10 @@ import tv.own.owntv.features.subtitles.SubtitleSearchViewModel
  * reordering is safe and a missing binding fails immediately, naming the type.
  */
 val appModule = module {
+    singleOf(::ActivationClient)
+    singleOf(::ActivationStore)
+    singleOf(::DeviceIdentity)
+    viewModelOf(::ActivationViewModel)
     viewModelOf(::ShellViewModel)
     // Home's rails are core's, shared with the phone app; the view model only decorates them.
     // LiveEpgReader is registered because GuideReader now needs one: a guide row whose stored data

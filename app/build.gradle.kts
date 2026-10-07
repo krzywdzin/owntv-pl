@@ -43,6 +43,14 @@ android {
         if (f.isFile) f.inputStream().use { load(it) }
     }
 
+    // Neutral product layer: branding stays unchanged for now, but activation is configurable
+    // independently for local development and release deployments.
+    val activationBaseUrl =
+        System.getenv("ACTIVATION_BASE_URL")
+            ?: providers.gradleProperty("product.activationBaseUrl").orNull
+            ?: localSigningProps.getProperty("product.activationBaseUrl")
+            ?: ""
+
     defaultConfig {
         applicationId = "tv.own.owntv"
         minSdk = 26
@@ -89,6 +97,13 @@ android {
             ?: localSigningProps.getProperty("owntv.edgeKey")
             ?: ""
         buildConfigField("String", "TMDB_EDGE_KEY", "\"${edgeKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+
+        buildConfigField(
+            "String",
+            "ACTIVATION_BASE_URL",
+            "\"" + activationBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"") + "\"",
+        )
+        buildConfigField("String", "PRODUCT_LOCALE", "\"pl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -154,6 +169,11 @@ android {
 
     buildTypes {
         debug {
+            // Emulator-friendly local fallback. Physical TV boxes should pass product.activationBaseUrl
+            // with a LAN/server address they can actually reach.
+            if (activationBaseUrl.isBlank()) {
+                buildConfigField("String", "ACTIVATION_BASE_URL", "\"http://10.0.2.2:8787\"")
+            }
             // Pseudolocales (en-XA / ar-XB) are generated for the debug BuildType, NOT androidResources.
             // They are the Phase 3g QA sweep instrument; localeFilters below would otherwise strip them,
             // so the debug-only qualifiers are added back via the per-variant API in the androidComponents

@@ -40,6 +40,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tv.own.owntv.core.util.Perf
 import tv.own.owntv.core.launcher.LauncherDeepLink
+import tv.own.owntv.features.activation.ActivationScreen
 import tv.own.owntv.features.profiles.ProfileGate
 import tv.own.owntv.features.profiles.ProfileGateSessionViewModel
 import tv.own.owntv.features.profiles.ProfilesViewModel
@@ -111,8 +112,9 @@ open class MainActivity : ComponentActivity() {
      * (see docs/internationalization.md 0b, "Both Application and Activity must wrap").
      */
     override fun attachBaseContext(newBase: android.content.Context) {
-        val tag = tv.own.owntv.core.i18n.LocaleStore.from(newBase).readBlocking()
-        super.attachBaseContext(tv.own.owntv.core.i18n.AppLocale.wrap(newBase, tag))
+        super.attachBaseContext(
+            tv.own.owntv.core.i18n.AppLocale.wrap(newBase, BuildConfig.PRODUCT_LOCALE),
+        )
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -409,11 +411,10 @@ open class MainActivity : ComponentActivity() {
                                 onCancel = { gateSession.cancelAddingProfile() },
                                 modifier = Modifier.fillMaxSize(),
                             )
-                            // First run (no profile yet) → full onboarding.
-                            profile < 0L -> Onboarding(
-                                firstRun = true,
-                                onDone = { profileId -> gateSession.authenticateProfile(profileId) },
-                                onCancel = {},
+                            // Customer first run: one decision — an 8-character activation code.
+                            // Existing onboarding stays available for profile/service flows.
+                            profile < 0L -> ActivationScreen(
+                                onActivated = { profileId -> gateSession.authenticateProfile(profileId) },
                                 modifier = Modifier.fillMaxSize(),
                             )
                             // A loaded list that does not contain the persisted active id is also

@@ -3,4 +3,21 @@
     <string name="content_search_channels">Search channels\u2026</string>
     <string name="content_search_movies">Search movies…</string>
     <string name="content_search_series">Search series…</string>
+    <string name="activation_title">Aktywacja urządzenia</string>
+    <string name="activation_body">Wpisz 8-znakowy kod otrzymany od dostawcy. Po aktywacji źródło zostanie skonfigurowane automatycznie.</string>
+    <string name="activation_code_label">Kod aktywacyjny</string>
+    <string name="activation_action">Aktywuj</string>
+    <string name="activation_checking">Sprawdzamy kod…</string>
+    <string name="activation_configuring">Konfigurujemy kanały i bibliotekę…</string>
+    <string name="activation_error_format">Kod powinien mieć 8 liter lub cyfr.</string>
+    <string name="activation_error_bad_code">Nieprawidłowy kod. Sprawdź go i spróbuj ponownie.</string>
+    <string name="activation_error_expired">Ten kod wygasł. Skontaktuj się z dostawcą usługi.</string>
+    <string name="activation_error_device">Ten kod jest już przypisany do innego urządzenia.</string>
+    <string name="activation_error_rate_limit">Za dużo prób. Odczekaj chwilę i spróbuj ponownie.</string>
+    <string name="activation_error_network">Brak połączenia z serwerem aktywacji. Sprawdź internet i spróbuj ponownie.</string>
+    <string name="activation_error_server">Serwer aktywacji zwrócił błąd. Spróbuj ponownie za chwilę.</string>
+    <string name="activation_error_config">Brak skonfigurowanego adresu serwera aktywacji.</string>
+    <string name="activation_error_source">Kod jest poprawny, ale nie udało się skonfigurować źródła. Spróbuj ponownie.</string>
+    <string name="activation_default_profile">Dom</string>
+    <string name="activation_default_source">Telewizja</string>
 </resources>
