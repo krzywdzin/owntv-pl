@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -39,8 +43,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import tv.own.owntv.R
+import tv.own.owntv.features.service.ServiceModeStore
 import tv.own.owntv.ui.theme.MidnightGlassColors
 import tv.own.owntv.ui.theme.MidnightGlassRadii
 import tv.own.owntv.ui.theme.MidnightGlassTv
@@ -48,11 +55,16 @@ import tv.own.owntv.ui.theme.MidnightGlassTv
 @Composable
 internal fun ActivationScreen(
     onActivated: (Long) -> Unit,
+    onServiceMode: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ActivationViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val serviceModeStore: ServiceModeStore = koinInject()
+    val scope = rememberCoroutineScope()
     var code by remember { mutableStateOf("") }
+    var serviceHoldJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var serviceHoldFired by remember { mutableStateOf(false) }
     val codeFocus = remember { FocusRequester() }
 
     LaunchedEffect(Unit) { codeFocus.requestFocus() }
@@ -84,6 +96,37 @@ internal fun ActivationScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .onPreviewKeyEvent { event ->
+                val keyCode = event.nativeKeyEvent.keyCode
+                val serviceKey = keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                    keyCode == android.view.KeyEvent.KEYCODE_ENTER ||
+                    keyCode == android.view.KeyEvent.KEYCODE_NUMPAD_ENTER
+                if (!serviceKey || state is ActivationUiState.Working || state is ActivationUiState.Activated) {
+                    return@onPreviewKeyEvent false
+                }
+                when (event.type) {
+                    KeyEventType.KeyDown -> {
+                        if (serviceHoldJob == null) {
+                            serviceHoldFired = false
+                            serviceHoldJob = scope.launch {
+                                kotlinx.coroutines.delay(SERVICE_MODE_HOLD_MS)
+                                serviceHoldFired = true
+                                serviceModeStore.activate()
+                                onServiceMode()
+                            }
+                        }
+                        false
+                    }
+                    KeyEventType.KeyUp -> {
+                        serviceHoldJob?.cancel()
+                        serviceHoldJob = null
+                        val fired = serviceHoldFired
+                        serviceHoldFired = false
+                        fired
+                    }
+                    else -> false
+                }
+            }
             .background(MidnightGlassColors.Bg000)
             .padding(horizontal = MidnightGlassTv.SafeX, vertical = MidnightGlassTv.SafeY),
         contentAlignment = Alignment.Center,
@@ -271,3 +314,5 @@ private val ActivationProblem.messageRes: Int
 
 private const val ACTIVATION_SUCCESS_HOLD_MS = 1_250L
 private const val ACTIVATION_DATE_CHARS = 10
+
+private const val SERVICE_MODE_HOLD_MS = 5_000L

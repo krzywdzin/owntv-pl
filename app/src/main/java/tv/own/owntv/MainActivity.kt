@@ -220,6 +220,7 @@ open class MainActivity : ComponentActivity() {
             }
 
             val viewModel: ShellViewModel = koinViewModel()
+            var serviceSetup by remember { mutableStateOf(false) }
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val accent by viewModel.accent.collectAsStateWithLifecycle()
             val customAccent by viewModel.customAccent.collectAsStateWithLifecycle()
@@ -419,10 +420,21 @@ open class MainActivity : ComponentActivity() {
                                 onCancel = { gateSession.cancelAddingProfile() },
                                 modifier = Modifier.fillMaxSize(),
                             )
+                            // Hidden service path for a fresh box: holding OK on activation for 5 s
+                            // opens the existing manual setup without requiring the activation backend.
+                            profile < 0L && serviceSetup -> Onboarding(
+                                firstRun = true,
+                                onDone = { profileId ->
+                                    serviceSetup = false
+                                    gateSession.authenticateProfile(profileId)
+                                },
+                                onCancel = { serviceSetup = false },
+                                modifier = Modifier.fillMaxSize(),
+                            )
                             // Customer first run: one decision — an 8-character activation code.
-                            // Existing onboarding stays available for profile/service flows.
                             profile < 0L -> ActivationScreen(
                                 onActivated = { profileId -> gateSession.authenticateProfile(profileId) },
+                                onServiceMode = { serviceSetup = true },
                                 modifier = Modifier.fillMaxSize(),
                             )
                             // A loaded list that does not contain the persisted active id is also
