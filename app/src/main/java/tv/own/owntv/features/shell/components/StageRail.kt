@@ -180,10 +180,10 @@ fun StageRail(
         }
     }
 
-    val focusSection = when {
-        selected == MainSection.MORE -> MainSection.SETTINGS
-        selected in StageRailOrder -> selected
-        else -> MainSection.LIVE_TV
+    val focusSection = when (selected) {
+        MainSection.MORE, MainSection.DOWNLOADS -> MainSection.SETTINGS
+        MainSection.EPG, MainSection.HOME -> MainSection.LIVE_TV
+        else -> if (selected in StageRailOrder) selected else MainSection.LIVE_TV
     }
     // Product navigation is fixed. Empty catalogues show their normal empty state rather than making
     // a destination disappear, so the customer always learns one stable five-item rail.
@@ -284,8 +284,7 @@ fun StageRail(
                     trailing = if (counts) count(section)?.let { NumberFormat.getIntegerInstance(LocalConfiguration.current.locales[0]).format(it) } else null,
                     detail = if (details) detail(section) else null,
                     open = open,
-                    active = section == selected ||
-                        (section == MainSection.MORE && selected == MainSection.SETTINGS),
+                    active = section == focusSection,
                     onClick = {
                         if (section == MainSection.SETTINGS) registerServiceTap()
                         onSelect(section)
