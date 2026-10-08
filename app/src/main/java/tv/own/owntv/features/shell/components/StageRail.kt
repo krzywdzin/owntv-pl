@@ -96,10 +96,10 @@ data class NowPlayingRail(val logoUrl: String?, val audioMode: Boolean, val play
 
 /** Product rail: exactly five customer destinations. Home remains the startup surface. */
 private val StageRailOrder = listOf(
-    MainSection.SEARCH,
     MainSection.LIVE_TV,
     MainSection.MOVIES,
     MainSection.SERIES,
+    MainSection.SEARCH,
     MainSection.SETTINGS,
 )
 
@@ -181,15 +181,13 @@ fun StageRail(
     }
 
     val focusSection = when {
-        selected == MainSection.SETTINGS || selected == MainSection.MORE -> MainSection.SETTINGS
-        selected == MainSection.SEARCH || selected in visibleSections -> selected
-        else -> StageRailOrder.firstOrNull {
-            it == MainSection.SEARCH || it == MainSection.SETTINGS || it in visibleSections
-        } ?: MainSection.SETTINGS
+        selected == MainSection.MORE -> MainSection.SETTINGS
+        selected in StageRailOrder -> selected
+        else -> MainSection.LIVE_TV
     }
-    val items = StageRailOrder.filter {
-        it == MainSection.SEARCH || it == MainSection.SETTINGS || it in visibleSections
-    }
+    // Product navigation is fixed. Empty catalogues show their normal empty state rather than making
+    // a destination disappear, so the customer always learns one stable five-item rail.
+    val items = StageRailOrder
 
     // Slide in from the edge (320 ms, or a snap with animations off): the capsule when it leaves
     // HIDDEN, the open rail each time it opens.

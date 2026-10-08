@@ -118,6 +118,9 @@ internal fun ActivationScreen(
             )
             Spacer(Modifier.height(28.dp))
             ActivationButton(
+                label = stringResource(
+                    if (state is ActivationUiState.Problem) R.string.common_retry else R.string.activation_action,
+                ),
                 enabled = !working && code.length == ActivationViewModel.CODE_LENGTH,
                 onClick = { viewModel.activate(code) },
             )
@@ -208,7 +211,7 @@ private fun ActivationCodeField(
 }
 
 @Composable
-private fun ActivationButton(enabled: Boolean, onClick: () -> Unit) {
+private fun ActivationButton(label: String, enabled: Boolean, onClick: () -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(MidnightGlassRadii.Medium)
     Box(
@@ -234,7 +237,7 @@ private fun ActivationButton(enabled: Boolean, onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         androidx.tv.material3.Text(
-            text = stringResource(R.string.activation_action),
+            text = label,
             color = if (enabled) MidnightGlassColors.Ink else MidnightGlassColors.InkOff,
             fontSize = 24.sp,
             lineHeight = 30.sp,
