@@ -1430,3 +1430,4 @@
 1	protocol	app/src/main/java/tv/own/owntv/features/activation/SubscriptionExpiredScreen.kt	tel
 1	technical	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	group_service
 1	technical	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	service_mode_exit
+1	technical	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	advanced_downloads
