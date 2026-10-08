@@ -447,7 +447,22 @@ fun SettingsScreen(
     }
     // Opening a sub-screen the ordinary way cancels any pending Quick-shortcut return, or the Back
     // from it would aim at the shortcut instead of the row just used.
-    val open: (SettingsTab) -> Unit = { lastTab = it; deepReturnKey = null; videoRowKey = null; tab = it }
+    val serviceOnlyTabs = remember {
+        setOf(SettingsTab.SOURCES, SettingsTab.BACKUP, SettingsTab.LOCAL_SYNC)
+    }
+    val open: (SettingsTab) -> Unit = { target ->
+        if (target !in serviceOnlyTabs || serviceMode) {
+            lastTab = target
+            deepReturnKey = null
+            videoRowKey = null
+            tab = target
+        }
+    }
+    // Session-only service access is a real gate, not just hidden rows. If the session ends while
+    // one of these pages is open (or a stale/deep state points there), return to the safe root.
+    LaunchedEffect(serviceMode, tab) {
+        if (!serviceMode && tab in serviceOnlyTabs) tab = SettingsTab.ROOT
+    }
     LaunchedEffect(openEpgAdd) {
         if (openEpgAdd) { consumeEpgAdd = true; open(SettingsTab.EPG); onEpgAddConsumed() }
     }
