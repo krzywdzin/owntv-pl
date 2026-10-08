@@ -32,4 +32,6 @@
     <string name="subscription_support_phone">Kontakt: %1$s</string>
     <string name="subscription_retry">Sprawdź ponownie</string>
     <string name="subscription_call_provider">Zadzwoń do dostawcy</string>
+    <string name="settings_group_watching_recording">Zaawansowane</string>
+    <string name="product_advanced_downloads_description">Pobrane filmy, seriale i nagrania.</string>
 </resources>

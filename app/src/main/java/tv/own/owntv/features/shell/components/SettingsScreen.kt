@@ -205,6 +205,7 @@ fun SettingsScreen(
     fontCustomization: FontCustomization,
     onSetFontCustomization: (FontCustomization) -> Unit,
     onOpenPlaylist: () -> Unit,
+    onOpenDownloads: () -> Unit = {},
     modifier: Modifier = Modifier,
     /**
      * Where Back from the **root** of this screen goes. Plan Z put Settings behind More, so leaving
@@ -781,6 +782,12 @@ fun SettingsScreen(
         RootGroup("group_sound", stringResource(R.string.settings_group_sound_subtitles), OwnTVIcon.HEADPHONES, ""),
         RootGroup("group_live", stringResource(R.string.settings_live_tv), OwnTVIcon.LIVE_TV, ""),
         RootGroup("group_watching", stringResource(R.string.settings_group_watching_recording), OwnTVIcon.REC, ""),
+        RootRow(
+            "advanced_downloads", TileTone.TERTIARY, OwnTVIcon.DOWNLOADS,
+            title = stringResource(R.string.content_downloads_title),
+            desc = stringResource(R.string.product_advanced_downloads_description),
+            onClick = onOpenDownloads,
+        ),
         // Plan Z — the whole "Data" group is gone. Backup and Local sync are places, not preferences,
         // and are More rows now; Clear history moved onto the History screen it acts on; the download
         // folder moved to the Downloads screen. With all four gone the group had nothing left in it.
@@ -1105,6 +1112,7 @@ fun SettingsScreen(
                     else pluralStringResource(R.plurals.settings_live_preroll_overrides, catchupOverrides, catchupOverrides),
                 chipTone = if (catchupOverrides > 0) TileTone.PRIMARY else TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showCatchupSources = true } else null,
             // Four screens that had no entry at all, so nothing on them could be found by name.
+            SettingsSearchEntry(stringResource(R.string.settings_group_watching_recording), stringResource(R.string.content_downloads_title), stringResource(R.string.product_advanced_downloads_description), OwnTVIcon.DOWNLOADS, TileTone.TERTIARY) { onOpenDownloads() },
             SettingsSearchEntry(stringResource(R.string.settings_group_watching_recording), stringResource(R.string.recording_settings_group), stringResource(R.string.settings_search_keywords_recording), OwnTVIcon.LIVE_TV, TileTone.TERTIARY) { searchQuery = ""; selectedGroup = SettingsGroup.WATCHING.ordinal },
             SettingsSearchEntry(stringResource(R.string.settings_group_content_metadata), stringResource(R.string.settings_open_subtitles), stringResource(R.string.settings_search_keywords_subtitle_appearance), OwnTVIcon.SUBTITLE, TileTone.PRIMARY) { open(SettingsTab.OPEN_SUBTITLES) },
             SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_glass_bg_title), stringResource(R.string.settings_search_keywords_glass), OwnTVIcon.SPARKLE, TileTone.PRIMARY,

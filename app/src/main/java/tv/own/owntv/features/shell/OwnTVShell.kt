@@ -1147,6 +1147,10 @@ fun OwnTVShell(
                             fontCustomization = fontCustomization,
                             onSetFontCustomization = onSetFontCustomization,
                             onOpenPlaylist = { /* Phase 6: open setup/playlist */ },
+                            onOpenDownloads = {
+                                restoreFocus = true
+                                onSelectSection(MainSection.DOWNLOADS)
+                            },
                             // Settings is reached through More now, so Back out of its root goes
                             // back there rather than to the rail — one level out, not two.
                             onBack = { restoreFocus = true; onSelectSection(MainSection.MORE) },
