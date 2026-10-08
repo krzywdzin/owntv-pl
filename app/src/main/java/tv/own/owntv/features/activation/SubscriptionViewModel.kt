@@ -52,7 +52,7 @@ internal class SubscriptionViewModel(
 
     private fun initialState(): SubscriptionUiState {
         val activation = store.read() ?: return SubscriptionUiState.Unmanaged
-        return if (isExpired(activation.expires)) {
+        return if (subscriptionExpired(activation.expires)) {
             SubscriptionUiState.Expired(activation.supportPhone)
         } else {
             SubscriptionUiState.Active
@@ -77,7 +77,7 @@ internal class SubscriptionViewModel(
         when (val lookup = client.activate(BuildConfig.ACTIVATION_BASE_URL, activation.code, deviceIdentity.id)) {
             is ActivationLookup.Success -> {
                 store.updateMetadata(lookup.payload.expires, lookup.payload.supportPhone)
-                _state.value = if (providerExpired || isExpired(lookup.payload.expires)) {
+                _state.value = if (providerExpired || subscriptionExpired(lookup.payload.expires)) {
                     SubscriptionUiState.Expired(lookup.payload.supportPhone ?: activation.supportPhone)
                 } else {
                     SubscriptionUiState.Active
@@ -94,7 +94,7 @@ internal class SubscriptionViewModel(
             ActivationLookup.ConfigurationMissing -> {
                 // A temporary backend/network failure must not brick a valid subscription. A locally
                 // known expiry or a provider-confirmed expiry still blocks without network.
-                _state.value = if (providerExpired || isExpired(activation.expires)) {
+                _state.value = if (providerExpired || subscriptionExpired(activation.expires)) {
                     SubscriptionUiState.Expired(activation.supportPhone)
                 } else {
                     SubscriptionUiState.Active
@@ -103,20 +103,24 @@ internal class SubscriptionViewModel(
         }
     }
 
-    private fun isExpired(value: String?): Boolean {
-        val raw = value?.trim().orEmpty()
-        if (raw.isEmpty()) return false
-        val numeric = raw.toLongOrNull()
-        val epochMs = when {
-            numeric == null -> runCatching { Instant.parse(raw).toEpochMilli() }.getOrNull()
-            numeric > EPOCH_MILLIS_THRESHOLD -> numeric
-            else -> numeric * 1_000L
-        } ?: return false
-        return epochMs <= System.currentTimeMillis()
-    }
-
     private companion object {
         const val REFRESH_INTERVAL_MS = 60_000L
-        const val EPOCH_MILLIS_THRESHOLD = 10_000_000_000L
     }
 }
+
+internal fun subscriptionExpired(
+    value: String?,
+    nowMs: Long = System.currentTimeMillis(),
+): Boolean {
+    val raw = value?.trim().orEmpty()
+    if (raw.isEmpty()) return false
+    val numeric = raw.toLongOrNull()
+    val epochMs = when {
+        numeric == null -> runCatching { Instant.parse(raw).toEpochMilli() }.getOrNull()
+        numeric > EPOCH_MILLIS_THRESHOLD -> numeric
+        else -> numeric * 1_000L
+    } ?: return false
+    return epochMs <= nowMs
+}
+
+private const val EPOCH_MILLIS_THRESHOLD = 10_000_000_000L
