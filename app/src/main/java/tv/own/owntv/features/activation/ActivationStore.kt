@@ -21,7 +21,7 @@ class ActivationStore(context: Context) {
             .apply()
     }
 
-    fun read(): StoredActivation? {
+    internal fun read(): StoredActivation? {
         val code = preferences.getString(KEY_CODE, null)?.takeIf { it.isNotBlank() } ?: return null
         val sourceId = preferences.getLong(KEY_MANAGED_SOURCE_ID, -1L).takeIf { it > 0L } ?: return null
         return StoredActivation(
