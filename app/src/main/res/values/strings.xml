@@ -34,4 +34,6 @@
     <string name="subscription_call_provider">Zadzwoń do dostawcy</string>
     <string name="settings_group_watching_recording">Zaawansowane</string>
     <string name="product_advanced_downloads_description">Pobrane filmy, seriale i nagrania.</string>
+    <string name="activation_success">Aktywowano. Telewizja jest gotowa.</string>
+    <string name="activation_success_until">Aktywowano — abonament ważny do %1$s</string>
 </resources>

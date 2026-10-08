@@ -58,10 +58,13 @@ internal fun ActivationScreen(
     LaunchedEffect(Unit) { codeFocus.requestFocus() }
     LaunchedEffect(state) {
         val activated = state as? ActivationUiState.Activated ?: return@LaunchedEffect
+        // Let the customer see a clear success state before moving into Home. No extra decision.
+        kotlinx.coroutines.delay(ACTIVATION_SUCCESS_HOLD_MS)
         onActivated(activated.profileId)
     }
 
     val working = state is ActivationUiState.Working
+    val activated = state as? ActivationUiState.Activated
     val statusText = when (val current = state) {
         is ActivationUiState.Working -> stringResource(
             if (current.stage == ActivationStage.VERIFYING) {
@@ -71,6 +74,10 @@ internal fun ActivationScreen(
             },
         )
         is ActivationUiState.Problem -> stringResource(current.problem.messageRes)
+        is ActivationUiState.Activated -> current.expires
+            ?.takeIf { it.isNotBlank() }
+            ?.let { stringResource(R.string.activation_success_until, it.take(ACTIVATION_DATE_CHARS)) }
+            ?: stringResource(R.string.activation_success)
         else -> null
     }
 
@@ -109,7 +116,7 @@ internal fun ActivationScreen(
             Spacer(Modifier.height(12.dp))
             ActivationCodeField(
                 code = code,
-                enabled = !working,
+                enabled = !working && activated == null,
                 focusRequester = codeFocus,
                 onCodeChange = {
                     code = ActivationViewModel.normalize(it)
@@ -117,21 +124,23 @@ internal fun ActivationScreen(
                 },
             )
             Spacer(Modifier.height(28.dp))
-            ActivationButton(
-                label = stringResource(
-                    if (state is ActivationUiState.Problem) R.string.common_retry else R.string.activation_action,
-                ),
-                enabled = !working && code.length == ActivationViewModel.CODE_LENGTH,
-                onClick = { viewModel.activate(code) },
-            )
+            if (activated == null) {
+                ActivationButton(
+                    label = stringResource(
+                        if (state is ActivationUiState.Problem) R.string.common_retry else R.string.activation_action,
+                    ),
+                    enabled = !working && code.length == ActivationViewModel.CODE_LENGTH,
+                    onClick = { viewModel.activate(code) },
+                )
+            }
             if (statusText != null) {
                 Spacer(Modifier.height(24.dp))
                 androidx.tv.material3.Text(
                     text = statusText,
-                    color = if (state is ActivationUiState.Problem) {
-                        MidnightGlassColors.Live
-                    } else {
-                        MidnightGlassColors.Violet300
+                    color = when (state) {
+                        is ActivationUiState.Problem -> MidnightGlassColors.Live
+                        is ActivationUiState.Activated -> MidnightGlassColors.Ok
+                        else -> MidnightGlassColors.Violet300
                     },
                     fontSize = MidnightGlassTv.MinimumText,
                     lineHeight = 30.sp,
@@ -258,3 +267,7 @@ private val ActivationProblem.messageRes: Int
         ActivationProblem.CONFIGURATION -> R.string.activation_error_config
         ActivationProblem.SOURCE_SETUP -> R.string.activation_error_source
     }
+
+
+private const val ACTIVATION_SUCCESS_HOLD_MS = 1_250L
+private const val ACTIVATION_DATE_CHARS = 10

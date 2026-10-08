@@ -33,7 +33,7 @@ internal sealed interface ActivationUiState {
     data object Idle : ActivationUiState
     data class Working(val stage: ActivationStage) : ActivationUiState
     data class Problem(val problem: ActivationProblem) : ActivationUiState
-    data class Activated(val profileId: Long) : ActivationUiState
+    data class Activated(val profileId: Long, val expires: String?) : ActivationUiState
 }
 
 internal class ActivationViewModel(
@@ -115,7 +115,7 @@ internal class ActivationViewModel(
                 expires = payload.expires,
                 supportPhone = payload.supportPhone,
             )
-            _state.value = ActivationUiState.Activated(activeProfileId)
+            _state.value = ActivationUiState.Activated(activeProfileId, payload.expires)
         } catch (_: Exception) {
             store.clear()
             cleanup(createdProfileId, importedSource)
