@@ -554,13 +554,13 @@ fun SettingsScreen(
         ),
         RootGroup("group_profile", stringResource(R.string.settings_profile_group), OwnTVIcon.PERSON, stringResource(R.string.settings_group_summary_profile)),
         RootGroup("group_sources", stringResource(R.string.settings_group_sources), OwnTVIcon.PLAYLIST, stringResource(R.string.settings_group_summary_sources)),
-        RootRow(
+        if (serviceMode) RootRow(
             tabRowKey(SettingsTab.SOURCES), TileTone.PRIMARY, OwnTVIcon.PLAYLIST,
             heading = stringResource(R.string.settings_sources_title),
             title = stringResource(R.string.settings_playlists), desc = stringResource(R.string.settings_playlists_description),
             focus = rowFocus.getValue(SettingsTab.SOURCES),
             onClick = { open(SettingsTab.SOURCES) },
-        ),
+        ) else null,
         RootRow(
             tabRowKey(SettingsTab.EPG), TileTone.PRIMARY, OwnTVIcon.EPG,
             title = stringResource(R.string.settings_epg_sources), desc = stringResource(R.string.settings_epg_sources_nav_description),
@@ -1025,7 +1025,7 @@ fun SettingsScreen(
         val entries = listOfNotNull(
             SettingsSearchEntry(stringResource(R.string.settings_group_profile), stringResource(R.string.profiles_title), stringResource(R.string.settings_search_keywords_profiles), OwnTVIcon.PERSON, TileTone.SECONDARY) { searchQuery = ""; selectedGroup = SettingsGroup.PROFILE.ordinal },
             SettingsSearchEntry(stringResource(R.string.settings_group_app), stringResource(R.string.settings_language), stringResource(R.string.settings_language), OwnTVIcon.LANGUAGE, TileTone.SECONDARY) { open(SettingsTab.LANGUAGE) },
-            SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.settings_playlists), stringResource(R.string.settings_search_keywords_playlists), OwnTVIcon.PLAYLIST, TileTone.PRIMARY) { open(SettingsTab.SOURCES) },
+            if (serviceMode) SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.settings_playlists), stringResource(R.string.settings_search_keywords_playlists), OwnTVIcon.PLAYLIST, TileTone.PRIMARY) { open(SettingsTab.SOURCES) } else null,
             SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.settings_epg_sources), stringResource(R.string.settings_search_keywords_epg), OwnTVIcon.EPG, TileTone.PRIMARY) { open(SettingsTab.EPG) },
             SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.content_epg_time_offset), stringResource(R.string.settings_search_keywords_epg_offset), OwnTVIcon.EPG, TileTone.SECONDARY,
                 chip = epgShiftLabel(epgOffset), chipTone = if (epgOffset == 0) TileTone.SECONDARY else TileTone.PRIMARY) { saveScroll(); dialogReturn = searchFieldFocus; showEpgOffset = true },
