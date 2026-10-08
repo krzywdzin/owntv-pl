@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -51,6 +53,7 @@ import tv.own.owntv.features.service.ServiceModeStore
 import tv.own.owntv.ui.theme.MidnightGlassColors
 import tv.own.owntv.ui.theme.MidnightGlassRadii
 import tv.own.owntv.ui.theme.MidnightGlassTv
+import tv.own.owntv.ui.theme.ownTvTween
 
 @Composable
 internal fun ActivationScreen(
@@ -266,19 +269,21 @@ private fun ActivationCodeField(
 private fun ActivationButton(label: String, enabled: Boolean, onClick: () -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(MidnightGlassRadii.Medium)
+    val focusScale by animateFloatAsState(
+        targetValue = if (focused && enabled) 1.04f else 1f,
+        animationSpec = ownTvTween(180),
+        label = "activationFocusScale",
+    )
     Box(
         modifier = Modifier
             .width(260.dp)
-            .height(64.dp)
+            .height(MidnightGlassTv.ButtonHeight)
+            .scale(focusScale)
             .onFocusChanged { focused = it.hasFocus }
             .focusable(enabled = enabled)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .background(
-                color = when {
-                    !enabled -> MidnightGlassColors.Bg200
-                    focused -> MidnightGlassColors.Blue700
-                    else -> MidnightGlassColors.Bg300
-                },
+                color = if (enabled) MidnightGlassColors.Violet500 else MidnightGlassColors.Bg200,
                 shape = shape,
             )
             .border(
@@ -290,7 +295,7 @@ private fun ActivationButton(label: String, enabled: Boolean, onClick: () -> Uni
     ) {
         androidx.tv.material3.Text(
             text = label,
-            color = if (enabled) MidnightGlassColors.Ink else MidnightGlassColors.InkOff,
+            color = if (enabled) MidnightGlassColors.OnInk else MidnightGlassColors.InkOff,
             fontSize = 24.sp,
             lineHeight = 30.sp,
             fontWeight = FontWeight.SemiBold,
