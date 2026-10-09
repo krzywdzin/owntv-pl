@@ -631,14 +631,14 @@ fun SettingsScreen(
             onClick = { saveScroll(); dialogReturn = catchupSourcesRowFocus; showCatchupSources = true },
         ) else null,
         RootGroup("group_appearance", stringResource(R.string.settings_appearance_group), OwnTVIcon.PALETTE, stringResource(R.string.settings_group_summary_appearance)),
-        RootRow(
+        if (serviceMode) RootRow(
             "theme", TileTone.PRIMARY, OwnTVIcon.THEME,
             title = stringResource(R.string.settings_theme), desc = stringResource(R.string.settings_theme_description),
             chip = themeLabel(themeMode), chipTone = TileTone.PRIMARY,
             focus = themeRowFocus,
             onClick = { saveScroll(); dialogReturn = themeRowFocus; showTheme = true },
         ),
-        RootRow(
+        if (serviceMode) RootRow(
             "accent", TileTone.SECONDARY, OwnTVIcon.PALETTE,
             title = stringResource(R.string.settings_accent), desc = stringResource(R.string.settings_accent_description),
             chip = if (customAccent.isNotBlank()) customAccent.uppercase() else stringResource(accent.labelRes),
@@ -646,7 +646,7 @@ fun SettingsScreen(
             focus = accentRowFocus,
             onClick = { saveScroll(); dialogReturn = accentRowFocus; showAccent = true },
         ),
-        RootRow(
+        if (serviceMode) RootRow(
             "focus_highlight", TileTone.SECONDARY, OwnTVIcon.FOCUS_HIGHLIGHT,
             title = stringResource(R.string.settings_focus_highlight),
             desc = stringResource(R.string.settings_focus_highlight_description),
@@ -807,14 +807,14 @@ fun SettingsScreen(
         // and are More rows now; Clear history moved onto the History screen it acts on; the download
         // folder moved to the Downloads screen. With all four gone the group had nothing left in it.
         RootGroup("group_app", stringResource(R.string.settings_app_group), OwnTVIcon.INFO, stringResource(R.string.settings_group_summary_app)),
-        RootRow(
+        if (serviceMode) RootRow(
             "app_icon", TileTone.SECONDARY, OwnTVIcon.PALETTE,
             title = stringResource(R.string.settings_app_icon), desc = stringResource(R.string.settings_app_icon_summary),
             chip = stringResource(appIcon.label), chipTone = TileTone.SECONDARY,
             focus = appIconRowFocus,
             onClick = { saveScroll(); dialogReturn = appIconRowFocus; showAppIcon = true },
         ),
-        RootRow(
+        if (serviceMode) RootRow(
             "brand_accent", TileTone.SECONDARY, OwnTVIcon.PALETTE,
             title = stringResource(R.string.settings_brand_accent), desc = stringResource(R.string.settings_line_brand_accent),
             chip = stringResource(if (brandAccent) R.string.common_on else R.string.common_off), chipTone = TileTone.SECONDARY,
@@ -1066,11 +1066,11 @@ fun SettingsScreen(
             // Plan Z — no entries for the download folder, Backup, Local sync or Clear history. They
             // are not in Settings any more, and a result for something that is not here is a lie
             // about where it lives. The no-results state deliberately says nothing else either.
-            SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_theme), stringResource(R.string.settings_search_keywords_theme), OwnTVIcon.THEME, TileTone.PRIMARY,
+            if (serviceMode) SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_theme), stringResource(R.string.settings_search_keywords_theme), OwnTVIcon.THEME, TileTone.PRIMARY,
                 chip = themeLabel(themeMode)) { saveScroll(); dialogReturn = searchFieldFocus; showTheme = true },
-            SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_accent), stringResource(R.string.settings_search_keywords_accent), OwnTVIcon.PALETTE, TileTone.SECONDARY,
+            if (serviceMode) SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_accent), stringResource(R.string.settings_search_keywords_accent), OwnTVIcon.PALETTE, TileTone.SECONDARY,
                 chip = if (customAccent.isNotBlank()) customAccent.uppercase() else stringResource(accent.labelRes), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showAccent = true },
-            SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_focus_highlight), stringResource(R.string.settings_search_keywords_focus), OwnTVIcon.FOCUS_HIGHLIGHT, TileTone.SECONDARY,
+            if (serviceMode) SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_focus_highlight), stringResource(R.string.settings_search_keywords_focus), OwnTVIcon.FOCUS_HIGHLIGHT, TileTone.SECONDARY,
                 chip = focusHighlightChip(focusHighlight, focusHighlightWidth), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showFocusHighlight = true },
             if (themeMode == ThemeMode.DARK && !glassOn) SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_ambient_glow), stringResource(R.string.settings_ambient_glow_description), OwnTVIcon.GLOW, TileTone.PRIMARY,
                 chip = stringResource(if (ambientGlowEnabled) R.string.common_on else R.string.common_off), chipTone = if (ambientGlowEnabled) TileTone.PRIMARY else TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showAmbientGlow = true } else null,
@@ -1094,9 +1094,9 @@ fun SettingsScreen(
         ) { saveScroll(); dialogReturn = searchFieldFocus; showPopupSize = true },
         SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_ui_zoom), stringResource(R.string.settings_search_keywords_zoom), OwnTVIcon.ZOOM, TileTone.SECONDARY,
                 chip = stringResource(R.string.common_percent, uiZoomPercent), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showZoom = true },
-        SettingsSearchEntry(stringResource(R.string.settings_group_app), stringResource(R.string.settings_app_icon), stringResource(R.string.settings_app_icon_summary), OwnTVIcon.PALETTE, TileTone.SECONDARY,
+        if (serviceMode) SettingsSearchEntry(stringResource(R.string.settings_group_app), stringResource(R.string.settings_app_icon), stringResource(R.string.settings_app_icon_summary), OwnTVIcon.PALETTE, TileTone.SECONDARY,
                 chip = stringResource(appIcon.label), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showAppIcon = true },
-        SettingsSearchEntry(stringResource(R.string.settings_group_app), stringResource(R.string.settings_brand_accent), stringResource(R.string.settings_line_brand_accent), OwnTVIcon.PALETTE, TileTone.SECONDARY,
+        if (serviceMode) SettingsSearchEntry(stringResource(R.string.settings_group_app), stringResource(R.string.settings_brand_accent), stringResource(R.string.settings_line_brand_accent), OwnTVIcon.PALETTE, TileTone.SECONDARY,
                 chip = stringResource(if (brandAccent) R.string.common_on else R.string.common_off), chipTone = TileTone.SECONDARY, showChevron = false) { settingsVm.setBrandAccentTriangle(!brandAccent) },
             SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_animations), stringResource(R.string.settings_search_keywords_animation), OwnTVIcon.MOTION, TileTone.SECONDARY,
                 chip = stringResource(animationLevel.labelRes), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showAnimations = true },
