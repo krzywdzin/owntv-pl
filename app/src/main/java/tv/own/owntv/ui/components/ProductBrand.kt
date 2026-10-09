@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import tv.own.owntv.R
 import tv.own.owntv.ui.theme.MidnightGlassColors
@@ -40,7 +41,7 @@ fun ProductBrandMark(size: Dp, modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.brand_own),
             color = MidnightGlassColors.OnInk,
-            fontSize = androidx.compose.ui.unit.TextUnit(size.value * 0.36f, androidx.compose.ui.unit.TextUnitType.Sp),
+            fontSize = (size.value * 0.36f).sp,
             fontWeight = FontWeight.ExtraBold,
         )
     }
@@ -56,7 +57,7 @@ fun ProductBrandLockup(
         Text(
             text = stringResource(R.string.app_name),
             color = MidnightGlassColors.Ink,
-            fontSize = androidx.compose.ui.unit.TextUnit(markSize.value * 0.46f, androidx.compose.ui.unit.TextUnitType.Sp),
+            fontSize = (markSize.value * 0.46f).sp,
             fontWeight = FontWeight.Bold,
         )
     }
