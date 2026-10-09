@@ -88,8 +88,7 @@ private fun FirstRunLanguagePopup(
     onDismiss: () -> Unit,
 ) {
     val selectedIndex = remember(currentTag, viewModel.pickerRows) {
-        if (currentTag.isEmpty()) 0
-        else (viewModel.pickerRows.indexOfFirst { it.languageTag == currentTag } + 1).coerceAtLeast(0)
+        viewModel.pickerRows.indexOfFirst { it.languageTag == currentTag }.coerceAtLeast(0)
     }
     val selectedFocus = remember { FocusRequester() }
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
@@ -109,16 +108,6 @@ private fun FirstRunLanguagePopup(
             modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
             verticalArrangement = Arrangement.spacedBy(4.mpx),
         ) {
-            item(key = SupportedLocales.SYSTEM_DEFAULT_TAG) {
-                LanguageRow(
-                    endonym = stringResource(R.string.settings_language_system_default),
-                    englishName = stringResource(R.string.settings_language_system_default_description),
-                    coverage = null,
-                    selected = currentTag.isEmpty(),
-                    onClick = { choose(SupportedLocales.SYSTEM_DEFAULT_TAG) },
-                    modifier = if (currentTag.isEmpty()) Modifier.focusRequester(selectedFocus) else Modifier,
-                )
-            }
             items(viewModel.pickerRows, key = { it.languageTag }) { locale ->
                 val selected = locale.languageTag == currentTag
                 LanguageRow(
@@ -157,15 +146,11 @@ fun LanguageSettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         if (!selectedFocus.requestFocus()) rowsFocus.requestFocus()
     }
 
-    val systemName = remember {
-        val system = android.content.res.Resources.getSystem().configuration.locales[0]
-        system.getDisplayName(system).replaceFirstChar { it.titlecase(system) }
-    }
     val hints = listOf(
         stringResource(R.string.common_ok) to stringResource(R.string.settings_key_use),
         stringResource(R.string.common_back) to stringResource(R.string.settings_group_app),
     )
-    val translate: @Composable () -> Unit = { TranslateBlock() }
+    val translate: @Composable () -> Unit = { }
     StageFullPage(
         parents = listOf(stringResource(R.string.settings_group_app)),
         title = stringResource(R.string.settings_language),
@@ -174,17 +159,6 @@ fun LanguageSettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier,
         rowsFocus = rowsFocus,
     ) {
-        val systemLabel = stringResource(R.string.settings_language_system_default)
-        LanguageStageRow(
-            icon = OwnTVIcon.CHECK,
-            title = systemLabel,
-            line = stringResource(R.string.settings_language_system_default_description),
-            coverage = null,
-            selected = currentTag.isEmpty(),
-            help = SettingHelp(systemLabel, stringResource(R.string.settings_language_system_help, systemName), hints = hints, extra = translate),
-            onClick = { viewModel.setLocale(SupportedLocales.SYSTEM_DEFAULT_TAG) },
-            modifier = if (currentTag.isEmpty()) Modifier.focusRequester(selectedFocus) else Modifier,
-        )
         rows.forEach { locale ->
             val selected = locale.languageTag == currentTag
             LanguageStageRow(

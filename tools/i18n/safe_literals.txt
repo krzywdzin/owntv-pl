@@ -1434,3 +1434,5 @@
 1	technical	app/src/main/java/tv/own/owntv/features/activation/ActivationScreen.kt	activationFocusScale
 1	preference-key	app/src/main/java/tv/own/owntv/OwnTVApp.kt	tv_lesnik_product
 1	preference-key	app/src/main/java/tv/own/owntv/OwnTVApp.kt	default_locale_applied
+1	locale	app/src/main/java/tv/own/owntv/features/settings/LanguageSettingsViewModel.kt	en-US
+1	locale	app/src/main/java/tv/own/owntv/features/settings/LanguageSettingsViewModel.kt	pl

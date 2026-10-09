@@ -15,9 +15,10 @@ val localesCatalogueFile = rootProject.file("tools/i18n/locales.json")
 val packagedLocaleQualifiers: Set<String> = run {
     if (!localesCatalogueFile.isFile) return@run emptySet()
     val raw = groovy.json.JsonSlurper().parseText(localesCatalogueFile.readText()) as List<Map<String, Any>>
+    val productQualifiers = setOf("en", "pl")
     raw.mapNotNull { entry ->
         if ((entry["packaged"] as? Boolean) == true) entry["resourceQualifier"] as? String else null
-    }.toSet()
+    }.filter { it in productQualifiers }.toSet()
 }
 
 plugins {
