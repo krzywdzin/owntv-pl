@@ -807,6 +807,13 @@ fun SettingsScreen(
         // and are More rows now; Clear history moved onto the History screen it acts on; the download
         // folder moved to the Downloads screen. With all four gone the group had nothing left in it.
         RootGroup("group_app", stringResource(R.string.settings_app_group), OwnTVIcon.INFO, stringResource(R.string.settings_group_summary_app)),
+        RootRow(
+            tabRowKey(SettingsTab.LANGUAGE), TileTone.PRIMARY, OwnTVIcon.LANGUAGE,
+            title = stringResource(R.string.settings_language),
+            desc = stringResource(R.string.settings_language_description),
+            focus = rowFocus.getValue(SettingsTab.LANGUAGE),
+            onClick = { open(SettingsTab.LANGUAGE) },
+        ),
         if (serviceMode) RootRow(
             "app_icon", TileTone.SECONDARY, OwnTVIcon.PALETTE,
             title = stringResource(R.string.settings_app_icon), desc = stringResource(R.string.settings_app_icon_summary),
@@ -1039,7 +1046,7 @@ fun SettingsScreen(
     val searchResults: List<SettingsSearchEntry> = if (searchQuery.isBlank()) emptyList() else {
         val entries = listOfNotNull(
             SettingsSearchEntry(stringResource(R.string.settings_group_profile), stringResource(R.string.profiles_title), stringResource(R.string.settings_search_keywords_profiles), OwnTVIcon.PERSON, TileTone.SECONDARY) { searchQuery = ""; selectedGroup = SettingsGroup.PROFILE.ordinal },
-            SettingsSearchEntry(stringResource(R.string.settings_group_app), stringResource(R.string.settings_language), stringResource(R.string.settings_language), OwnTVIcon.LANGUAGE, TileTone.SECONDARY) { open(SettingsTab.LANGUAGE) },
+            SettingsSearchEntry(stringResource(R.string.settings_group_app), stringResource(R.string.settings_language), stringResource(R.string.settings_search_keywords_language), OwnTVIcon.LANGUAGE, TileTone.PRIMARY) { open(SettingsTab.LANGUAGE) },
             if (serviceMode) SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.settings_playlists), stringResource(R.string.settings_search_keywords_playlists), OwnTVIcon.PLAYLIST, TileTone.PRIMARY) { open(SettingsTab.SOURCES) } else null,
             SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.settings_epg_sources), stringResource(R.string.settings_search_keywords_epg), OwnTVIcon.EPG, TileTone.PRIMARY) { open(SettingsTab.EPG) },
             SettingsSearchEntry(stringResource(R.string.settings_group_sources), stringResource(R.string.content_epg_time_offset), stringResource(R.string.settings_search_keywords_epg_offset), OwnTVIcon.EPG, TileTone.SECONDARY,
