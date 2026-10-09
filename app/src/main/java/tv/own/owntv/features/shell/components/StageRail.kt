@@ -61,9 +61,9 @@ import tv.own.owntv.core.nav.MainSection
 import tv.own.owntv.core.settings.SettingsRepository.NavLength
 import tv.own.owntv.core.settings.SettingsRepository.NavSize
 import tv.own.owntv.features.service.ServiceModeStore
-import tv.own.owntv.ui.components.BrandMark
+import tv.own.owntv.ui.components.ProductBrandLockup
+import tv.own.owntv.ui.components.ProductBrandMark
 import tv.own.owntv.ui.components.OwnTVIcon
-import tv.own.owntv.ui.components.Wordmark
 import tv.own.owntv.ui.components.rememberAppliedIcon
 import tv.own.owntv.ui.stage.StageFocus
 import tv.own.owntv.ui.stage.StageSurface
@@ -335,20 +335,14 @@ private fun RailEdgeGlow(modifier: Modifier) {
 /** The mark (50), with the wordmark beside it when the rail is open (`.brandrow`, 0 10 18 padding). */
 @Composable
 private fun ColumnScope.RailBrand(open: Boolean) {
-    val icon = rememberAppliedIcon()
     if (!open) {
-        BrandMark(icon, 50.mpx, Modifier.padding(bottom = 12.mpx))
+        ProductBrandMark(50.mpx, Modifier.padding(bottom = 12.mpx))
         return
     }
-    Row(
-        Modifier.padding(start = 10.mpx, end = 10.mpx, bottom = 18.mpx),
-        horizontalArrangement = Arrangement.spacedBy(14.mpx),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        BrandMark(icon, 50.mpx)
-        // The #227 wordmark, 130 wide (`.brandrow`, `wordmarkC()`).
-        Wordmark(130.mpx)
-    }
+    ProductBrandLockup(
+        markSize = 50.mpx,
+        modifier = Modifier.padding(start = 10.mpx, end = 10.mpx, bottom = 18.mpx),
+    )
 }
 
 @Composable

@@ -50,6 +50,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import tv.own.owntv.R
 import tv.own.owntv.features.service.ServiceModeStore
+import tv.own.owntv.ui.components.ProductBrandLockup
 import tv.own.owntv.ui.theme.MidnightGlassColors
 import tv.own.owntv.ui.theme.MidnightGlassRadii
 import tv.own.owntv.ui.theme.MidnightGlassTv
@@ -138,6 +139,8 @@ internal fun ActivationScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            ProductBrandLockup(markSize = 52.dp)
+            Spacer(Modifier.height(32.dp))
             androidx.tv.material3.Text(
                 text = stringResource(R.string.activation_title),
                 color = MidnightGlassColors.Ink,
