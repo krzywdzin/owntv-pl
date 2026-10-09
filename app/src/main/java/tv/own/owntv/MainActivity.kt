@@ -115,9 +115,8 @@ open class MainActivity : ComponentActivity() {
      * (see docs/internationalization.md 0b, "Both Application and Activity must wrap").
      */
     override fun attachBaseContext(newBase: android.content.Context) {
-        super.attachBaseContext(
-            tv.own.owntv.core.i18n.AppLocale.wrap(newBase, BuildConfig.PRODUCT_LOCALE),
-        )
+        val tag = tv.own.owntv.core.i18n.LocaleStore.from(newBase).readBlocking()
+        super.attachBaseContext(tv.own.owntv.core.i18n.AppLocale.wrap(newBase, tag))
     }
 
     override fun onNewIntent(intent: Intent) {

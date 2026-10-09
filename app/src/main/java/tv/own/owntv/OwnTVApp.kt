@@ -35,6 +35,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
 
         /** Lower bound: below this the cache thrashes and stops saving any downloads. */
         private const val MIN_IMAGE_CACHE_BYTES = 32L * 1024 * 1024
+        private const val PRODUCT_BOOTSTRAP_PREFS = "tv_lesnik_product"
+        private const val KEY_DEFAULT_LOCALE_APPLIED = "default_locale_applied"
     }
 
     /** Application-lifetime scope for small fire-and-forget IO that must not touch the launch path. */
@@ -59,10 +61,15 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
      * every Locale.getDefault() reader still depend on it.
      */
     override fun attachBaseContext(base: Context) {
-        tv.own.owntv.core.i18n.AppLocale.applyGlobally(BuildConfig.PRODUCT_LOCALE)
-        super.attachBaseContext(
-            tv.own.owntv.core.i18n.AppLocale.wrap(base, BuildConfig.PRODUCT_LOCALE),
-        )
+        val store = tv.own.owntv.core.i18n.LocaleStore.from(base)
+        val bootstrap = base.getSharedPreferences(PRODUCT_BOOTSTRAP_PREFS, Context.MODE_PRIVATE)
+        if (!bootstrap.getBoolean(KEY_DEFAULT_LOCALE_APPLIED, false)) {
+            kotlinx.coroutines.runBlocking { store.set(BuildConfig.PRODUCT_LOCALE) }
+            bootstrap.edit().putBoolean(KEY_DEFAULT_LOCALE_APPLIED, true).commit()
+        }
+        val tag = store.readBlocking()
+        tv.own.owntv.core.i18n.AppLocale.applyGlobally(tag)
+        super.attachBaseContext(tv.own.owntv.core.i18n.AppLocale.wrap(base, tag))
     }
 
     /**
@@ -72,7 +79,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        tv.own.owntv.core.i18n.AppLocale.applyGlobally(BuildConfig.PRODUCT_LOCALE)
+        val tag = tv.own.owntv.core.i18n.LocaleStore.from(this).readBlocking()
+        tv.own.owntv.core.i18n.AppLocale.applyGlobally(tag)
     }
 
     override fun onCreate() {
@@ -81,14 +89,6 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         // "Restart now" after an icon change runs a few milliseconds in a process of its own; nothing
         // below may start there (core's AppRestartActivity).
         if (tv.own.owntv.core.brand.AppIconSwitcher.isRestartProcess(this)) return
-        // The customer build is Polish-only. Persist the same locale that wraps Application/Activity
-        // so Compose's LocaleStore observer cannot briefly fall back to the device language.
-        kotlinx.coroutines.runBlocking {
-            val locale = tv.own.owntv.core.i18n.LocaleStore.from(this@OwnTVApp)
-            if (locale.readBlocking() != BuildConfig.PRODUCT_LOCALE) {
-                locale.set(BuildConfig.PRODUCT_LOCALE)
-            }
-        }
         // Core has its own BuildConfig, which carries none of this: a library gets no version at all,
         // and the edge key and the maintainer switch are the app's build inputs. Hand them over before
         // the first reader — CrashRecorder, two lines down (see CoreBuildInfo).
