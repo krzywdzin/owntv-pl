@@ -1432,5 +1432,5 @@
 1	technical	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	service_mode_exit
 1	technical	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	advanced_downloads
 1	technical	app/src/main/java/tv/own/owntv/features/activation/ActivationScreen.kt	activationFocusScale
-1	preference	app/src/main/java/tv/own/owntv/OwnTVApp.kt	tv_lesnik_product
-1	preference	app/src/main/java/tv/own/owntv/OwnTVApp.kt	default_locale_applied
+1	preference-key	app/src/main/java/tv/own/owntv/OwnTVApp.kt	tv_lesnik_product
+1	preference-key	app/src/main/java/tv/own/owntv/OwnTVApp.kt	default_locale_applied
