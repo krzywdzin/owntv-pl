@@ -3,6 +3,8 @@ package tv.own.owntv.features.activation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -116,7 +118,12 @@ internal fun subscriptionExpired(
     if (raw.isEmpty()) return false
     val numeric = raw.toLongOrNull()
     val epochMs = when {
-        numeric == null -> runCatching { Instant.parse(raw).toEpochMilli() }.getOrNull()
+        numeric == null -> {
+            runCatching { Instant.parse(raw).toEpochMilli() }.getOrNull()
+                ?: runCatching {
+                    LocalDate.parse(raw).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+                }.getOrNull()
+        }
         numeric > EPOCH_MILLIS_THRESHOLD -> numeric
         else -> numeric * 1_000L
     } ?: return false

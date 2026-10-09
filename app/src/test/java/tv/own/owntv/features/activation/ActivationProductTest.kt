@@ -43,6 +43,10 @@ class ActivationProductTest {
         assertTrue(subscriptionExpired("2023-11-14T22:13:20Z", now))
         assertFalse(subscriptionExpired("2030-03-17T17:46:40Z", now))
 
+        // Activation backend contract uses a plain yyyy-MM-dd date.
+        assertTrue(subscriptionExpired("2026-01-01", now))
+        assertFalse(subscriptionExpired("2030-01-01", now))
+
         assertFalse(subscriptionExpired(null, now))
         assertFalse(subscriptionExpired("", now))
         assertFalse(subscriptionExpired("not-a-date", now))
