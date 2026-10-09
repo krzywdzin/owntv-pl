@@ -35,6 +35,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
 
         /** Lower bound: below this the cache thrashes and stops saving any downloads. */
         private const val MIN_IMAGE_CACHE_BYTES = 32L * 1024 * 1024
+        private const val PRODUCT_BOOTSTRAP_PREFS = "tv_lesnik_product"
+        private const val KEY_DEFAULT_LOCALE_APPLIED = "default_locale_applied"
     }
 
     /** Application-lifetime scope for small fire-and-forget IO that must not touch the launch path. */
@@ -59,7 +61,13 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
      * every Locale.getDefault() reader still depend on it.
      */
     override fun attachBaseContext(base: Context) {
-        val tag = tv.own.owntv.core.i18n.LocaleStore.from(base).readBlocking()
+        val store = tv.own.owntv.core.i18n.LocaleStore.from(base)
+        val bootstrap = base.getSharedPreferences(PRODUCT_BOOTSTRAP_PREFS, Context.MODE_PRIVATE)
+        if (!bootstrap.getBoolean(KEY_DEFAULT_LOCALE_APPLIED, false)) {
+            kotlinx.coroutines.runBlocking { store.set(BuildConfig.PRODUCT_LOCALE) }
+            bootstrap.edit().putBoolean(KEY_DEFAULT_LOCALE_APPLIED, true).commit()
+        }
+        val tag = store.readBlocking()
         tv.own.owntv.core.i18n.AppLocale.applyGlobally(tag)
         super.attachBaseContext(tv.own.owntv.core.i18n.AppLocale.wrap(base, tag))
     }
@@ -94,7 +102,7 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
         // this value, so the line changes nothing today — it is here so the television names its own
         // repository instead of relying on core to guess it, the same as the phone app does. A
         // default that happens to be right for one app is a trap for every other one.
-        tv.own.owntv.core.CoreBuildInfo.releaseRepo = "ahXN00/OwnTV"
+        tv.own.owntv.core.CoreBuildInfo.releaseRepo = "krzywdzin/owntv-pl"
         // First thing after the context exists: a crash from here on leaves a trace on disk that the
         // user can export from Settings, instead of being lost with the process.
         tv.own.owntv.core.util.CrashRecorder.diagnostics = { tv.own.owntv.player.LiveDiagnosticsLog.snapshot() }

@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -53,13 +55,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.Text
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import tv.own.owntv.R
 import tv.own.owntv.core.nav.MainSection
 import tv.own.owntv.core.settings.SettingsRepository.NavLength
 import tv.own.owntv.core.settings.SettingsRepository.NavSize
-import tv.own.owntv.ui.components.BrandMark
+import tv.own.owntv.features.service.ServiceModeStore
+import tv.own.owntv.ui.components.ProductBrandLockup
+import tv.own.owntv.ui.components.ProductBrandMark
 import tv.own.owntv.ui.components.OwnTVIcon
-import tv.own.owntv.ui.components.Wordmark
 import tv.own.owntv.ui.components.rememberAppliedIcon
 import tv.own.owntv.ui.stage.StageFocus
 import tv.own.owntv.ui.stage.StageSurface
@@ -90,10 +94,13 @@ enum class RailState {
  */
 data class NowPlayingRail(val logoUrl: String?, val audioMode: Boolean, val playing: Boolean)
 
-/** The mockup's rail order (`screens.js` `cRail`): Search first, the Guide right after Live TV, More last. */
+/** Product rail: exactly five customer destinations. Home remains the startup surface. */
 private val StageRailOrder = listOf(
-    MainSection.SEARCH, MainSection.HOME, MainSection.LIVE_TV, MainSection.EPG,
-    MainSection.MOVIES, MainSection.SERIES, MainSection.DOWNLOADS,
+    MainSection.LIVE_TV,
+    MainSection.MOVIES,
+    MainSection.SERIES,
+    MainSection.SEARCH,
+    MainSection.SETTINGS,
 )
 
 /** The rail's width with names (P1b): Normal 280 · Wide 340 · Extra wide 400; Compact is the 84 capsule. */
@@ -154,13 +161,33 @@ fun StageRail(
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val scope = rememberCoroutineScope()
     var hasFocus by remember { mutableStateOf(false) }
-    // Search, Settings and More all land on a rail item: Search has its own, Settings lives behind More.
-    val focusSection = when {
-        selected == MainSection.SETTINGS || selected == MainSection.MORE -> MainSection.MORE
-        selected == MainSection.SEARCH || selected in visibleSections -> selected
-        else -> StageRailOrder.firstOrNull { it in visibleSections } ?: MainSection.MORE
+    val serviceMode: ServiceModeStore = koinInject()
+    var serviceTapCount by remember { mutableIntStateOf(0) }
+    var serviceTapWindowStart by remember { mutableLongStateOf(0L) }
+
+    fun registerServiceTap() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (serviceTapWindowStart == 0L || now - serviceTapWindowStart > SERVICE_TAP_WINDOW_MS) {
+            serviceTapWindowStart = now
+            serviceTapCount = 1
+        } else {
+            serviceTapCount += 1
+        }
+        if (serviceTapCount >= SERVICE_TAP_COUNT) {
+            serviceMode.activate()
+            serviceTapCount = 0
+            serviceTapWindowStart = 0L
+        }
     }
-    val items = StageRailOrder.filter { it == MainSection.SEARCH || it in visibleSections } + MainSection.MORE
+
+    val focusSection = when (selected) {
+        MainSection.MORE, MainSection.DOWNLOADS -> MainSection.SETTINGS
+        MainSection.EPG, MainSection.HOME -> MainSection.LIVE_TV
+        else -> if (selected in StageRailOrder) selected else MainSection.LIVE_TV
+    }
+    // Product navigation is fixed. Empty catalogues show their normal empty state rather than making
+    // a destination disappear, so the customer always learns one stable five-item rail.
+    val items = StageRailOrder
 
     // Slide in from the edge (320 ms, or a snap with animations off): the capsule when it leaves
     // HIDDEN, the open rail each time it opens.
@@ -257,9 +284,11 @@ fun StageRail(
                     trailing = if (counts) count(section)?.let { NumberFormat.getIntegerInstance(LocalConfiguration.current.locales[0]).format(it) } else null,
                     detail = if (details) detail(section) else null,
                     open = open,
-                    active = section == selected ||
-                        (section == MainSection.MORE && selected == MainSection.SETTINGS),
-                    onClick = { onSelect(section) },
+                    active = section == focusSection,
+                    onClick = {
+                        if (section == MainSection.SETTINGS) registerServiceTap()
+                        onSelect(section)
+                    },
                     modifier = if (section == focusSection) Modifier.focusRequester(selectedItemFocusRequester) else Modifier,
                 )
             }
@@ -280,7 +309,8 @@ private val MainSection.stageIcon: OwnTVIcon
         MainSection.MOVIES -> OwnTVIcon.MOVIES
         MainSection.SERIES -> OwnTVIcon.SERIES
         MainSection.DOWNLOADS -> OwnTVIcon.DOWNLOADS
-        MainSection.MORE, MainSection.SETTINGS -> OwnTVIcon.TILES
+        MainSection.SETTINGS -> OwnTVIcon.SETTINGS
+        MainSection.MORE -> OwnTVIcon.TILES
     }
 
 /** `.edge`: 7 × 150 at the screen edge, accent, glowing 22 px at 80% and 60 px at 35%, 90% opaque. */
@@ -305,20 +335,14 @@ private fun RailEdgeGlow(modifier: Modifier) {
 /** The mark (50), with the wordmark beside it when the rail is open (`.brandrow`, 0 10 18 padding). */
 @Composable
 private fun ColumnScope.RailBrand(open: Boolean) {
-    val icon = rememberAppliedIcon()
     if (!open) {
-        BrandMark(icon, 50.mpx, Modifier.padding(bottom = 12.mpx))
+        ProductBrandMark(50.mpx, Modifier.padding(bottom = 12.mpx))
         return
     }
-    Row(
-        Modifier.padding(start = 10.mpx, end = 10.mpx, bottom = 18.mpx),
-        horizontalArrangement = Arrangement.spacedBy(14.mpx),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        BrandMark(icon, 50.mpx)
-        // The #227 wordmark, 130 wide (`.brandrow`, `wordmarkC()`).
-        Wordmark(130.mpx)
-    }
+    ProductBrandLockup(
+        markSize = 50.mpx,
+        modifier = Modifier.padding(start = 10.mpx, end = 10.mpx, bottom = 18.mpx),
+    )
 }
 
 @Composable
@@ -468,3 +492,6 @@ internal fun RailAvatar(initial: String, size: Int = 46, textSize: Int = 20, ava
         Text(initial, style = stageText(textSize, 800), color = Color(0xFF2A0D12), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
+
+private const val SERVICE_TAP_COUNT = 7
+private const val SERVICE_TAP_WINDOW_MS = 4_000L

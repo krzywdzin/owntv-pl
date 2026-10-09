@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="common_own_tv_user">TV Leśnik User</string>
+<string name="content_exit_owntv">Exit TV Leśnik?</string>
+<string name="content_storage_folder_fallback">Your download folder isn\'t available right now, so downloads are being saved to TV Leśnik\'s own folder until it\'s back.</string>
+<string name="content_epg_own_player">TV Leśnik player</string>
+<string name="update_ready">TV Leśnik v<xliff:g id="available">%1$s</xliff:g> is ready (you have v<xliff:g id="current">%2$s</xliff:g>).</string>
+<string name="recovery_title">TV Leśnik could not open its database</string>
+<string name="settings_recording_timers_inexact">This device does not allow TV Leśnik to set exact alarms, so a recording may begin a few minutes late. Recordings start earlier to make up for it.</string>
+<string name="recording_failed_drm">This channel is DRM-protected, so it can be watched but not recorded. The protection comes from your provider, not from TV Leśnik.</string>
+<string name="player_trailer_blocked_title">This trailer can’t play in TV Leśnik</string>
+<string name="settings_proxy_description">Send all TV Leśnik traffic and playback through an HTTP proxy.</string>
+<string name="settings_metadata_shared_worker_description">TV Leśnik Worker · no setup</string>
+<string name="settings_open_subtitles_access_priority">Leave both blank for TV Leśnik’s shared Worker. A custom Worker URL takes priority over a direct API key. Account sessions remain profile-specific.</string>
+<string name="settings_metadata_clear_advanced_message">Your TMDB API key and self-hosted server address will be deleted from this device, and TV Leśnik will go back to the built-in shared service with its daily share.</string>
+<string name="settings_metadata_fair_share">The built-in service is shared by everyone using TV Leśnik. If any minute, hourly or daily allowance is used up, TMDB details pause until that window resets; playlist information keeps working. Your own key or Worker removes this allowance.</string>
+<string name="settings_auto_frame_rate_warning_description">This device runs Android <xliff:g id="android_version">%1$s</xliff:g>. Below Android 12 the TV can\'t tell TV Leśnik which refresh rates it can switch to smoothly, so changing the rate may black the screen out for a second or two — sometimes more than once during a programme.\n\nWe recommend leaving Auto frame rate off here. If your TV switches cleanly, turn it on and see: you can change it back at any time.</string>
+<string name="settings_auto_frame_rate_warning_description_mobile">This device runs Android <xliff:g id="android_version">%1$s</xliff:g>. Below Android 12 the device can\'t tell TV Leśnik which refresh rates it can switch to smoothly, so changing the rate may black the screen out for a second or two — sometimes more than once during a programme.\n\nWe recommend leaving Auto frame rate off here. If your screen switches cleanly, turn it on and see: you can change it back at any time.</string>
+<string name="settings_app_startup_description">What TV Leśnik opens when it starts</string>
+<string name="settings_about_license">© 2026 TV Leśnik · GPLv3 License</string>
+<string name="settings_restore_remote_description">On any device with a browser on the same Wi-Fi — a phone, a computer or another TV — scan the QR (or open the URL), enter this PIN, choose your TV Leśnik backup file and send it. You then pick what to restore here.</string>
+<string name="settings_catchup_player_internal">TV Leśnik player</string>
+<string name="settings_sources_probe_warning">Many providers never say how many channels you may watch at the same time, so TV Leśnik finds out by opening a few and seeing which ones survive. Anything playing now will stop, and this can take up to two minutes.</string>
+<string name="settings_sources_probe_unknown">TV Leśnik could not work out how many channels this provider allows.</string>
+<string name="settings_dns_toggle_description">Resolve all TV Leśnik domain lookups through a custom DNS server.</string>
+<string name="settings_live_tune_timeout_description">If a live channel has shown no picture by this time, TV Leśnik stops trying and tells you, instead of leaving a black screen while it works through every player it has. Never keeps trying, which can take well over a minute on a channel your provider has removed. Waits your provider asks for are not counted.</string>
+<string name="settings_surround_forced_description">Surround — send Dolby/DTS to a real 5.1/7.1 receiver. If it goes silent or stutters, TV Leśnik still falls back to stereo and tells you.</string>
+<string name="settings_language_help_translate">Help translate TV Leśnik into your language</string>
+<string name="settings_language_contribution_description">Scan the QR code or open the link to choose any available language and contribute across all six TV Leśnik translation components.</string>
+<string name="settings_language_contribution_qr_description">QR code for the TV Leśnik translation project overview</string>
+<string name="settings_glass_master_description">Use translucent, frosted surfaces throughout TV Leśnik.</string>
+<string name="local_sync_error_unreachable">This device could not be reached. On it, open TV Leśnik → Settings → Data → Local sync and turn Sync mode on. Both devices must be on the same Wi-Fi.</string>
+<string name="settings_app_icon_summary">Color of the TV Leśnik icon and logo</string>
+<string name="app_icon_restart_title">Restart TV Leśnik?</string>
+<string name="app_icon_restart_message">You chose a new icon and logo. They take effect after TV Leśnik restarts.</string>
+<string name="settings_help_theme">Dark is what TV Leśnik is designed for. System follows the TV’s own setting where it has one; Light suits a bright room.</string>
+<string name="settings_help_fonts">The font used across TV Leśnik, and how large text is drawn. Popups use the same font.</string>
+<string name="settings_help_app_icon">The TV Leśnik icon on your TV’s home screen. The launcher may take a moment to show the change.</string>
+<string name="settings_help_brand_accent">The TV Leśnik logo in the menu, About and setup shows its play triangle in your accent color. The icon on the home screen keeps its own colors.</string>
+<string name="settings_help_startup">What TV Leśnik shows when it starts: Home, the channel you watched last, your favorites, or a channel you pick.</string>
+<string name="settings_help_check_updates">Looks on GitHub for a newer TV Leśnik now and offers to install it. Your playlists, favorites and settings stay as they are.</string>
+<string name="settings_help_update_startup">Looks for a new version each time TV Leśnik starts and tells you when there is one. Nothing is installed without asking.</string>
+<plurals name="settings_help_language">
+        <item quantity="one">The language of every menu and message in TV Leśnik. <xliff:g id="count">%1$d</xliff:g> language; follows the TV’s own language until you pick one.</item>
+        <item quantity="other">The language of every menu and message in TV Leśnik. <xliff:g id="count">%1$d</xliff:g> languages; follows the TV’s own language until you pick one.</item>
+    </plurals>
+<string name="settings_language_system_help">TV Leśnik follows the language of the TV (now <xliff:g id="language">%1$s</xliff:g>). Pick one below to use it in TV Leśnik only.</string>
+<string name="settings_language_pick_help">Use <xliff:g id="language">%1$s</xliff:g> in TV Leśnik, whatever language the TV is set to.</string>
+<string name="settings_help_bg_background">Stage draws TV Leśnik’s own soft colors. Picture shows a picture of yours behind every screen. Plain is a flat dark fill.</string>
+<string name="setup_disclaimer">TV Leśnik is a media player only. It includes no channels, playlists, or content. You are responsible for adding your own legally accessible Xtream, M3U, or Stalker sources.</string>
+<string name="setup_set_up_owntv">Set up TV Leśnik</string>
+<string name="setup_sync_device_description">Copy everything from your other TV Leśnik device over Wi-Fi</string>
+<string name="setup_byo_source_description">TV Leśnik is a player \u2014 bring your own Xtream, M3U, or Stalker source.</string>
+<string name="companion_pin_page_title">TV Leśnik \u2014 Enter PIN</string>
+<string name="companion_add_page_title">TV Leśnik \u2014 Add source</string>
+<string name="companion_saved_page_title">TV Leśnik \u2014 Sent</string>
+<string name="companion_backup_page_title">TV Leśnik \u2014 Restore backup</string>
+<string name="companion_backup_description">Choose an TV Leśnik backup file (.own, or an older .json) and press Send. It is transferred to the TV \u2014 pick up the remote and choose what to restore there.</string>
+<string name="companion_image_page_title">TV Leśnik \u2014 Background image</string>
+<string name="companion_download_page_title">TV Leśnik \u2014 Download backup</string>
+<string name="companion_download_description">Your TV has prepared an TV Leśnik backup file. Tap the button to save it to this device (owntv-backup.own). Keep it somewhere safe \u2014 you can restore from it later.</string>
+<string name="local_sync_browser_title">TV Leśnik local sync</string>
+<string name="local_sync_browser_body">This address is for the TV Leśnik app on your other device. Open Local sync there and pick this device from the list.</string>
+<string name="setup_welcome_title">Welcome to TV Leśnik</string>
+<string name="setup_line_app_icon">How TV Leśnik appears on the TV’s home screen</string>
+</resources>

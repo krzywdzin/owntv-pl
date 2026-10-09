@@ -57,3 +57,8 @@ replay_pid*.log
 
 # Local-only archive (old detailed changelogs etc.), never committed
 /archive/
+
+# Local activation state and credentials — never commit
+/backend/activations.json
+/backend/bindings.json
+/backend/*.tmp

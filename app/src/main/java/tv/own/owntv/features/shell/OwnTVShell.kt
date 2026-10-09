@@ -852,13 +852,9 @@ fun OwnTVShell(
             showAvatarPicker -> showAvatarPicker = false
             showPlaylistPicker -> showPlaylistPicker = false
             showExit -> showExit = false
-            // Settings is reached through More now, so Back out of its root goes back there — one
-            // level out, not two. `SettingsScreen` passes its own `onBack` for the same purpose, but
-            // its root handler does not always win against this one, which left Back looking dead on
-            // the first press: the fallback below simply moved focus to the rail and nothing else
-            // happened. Handled here as well so the answer is the same whichever handler fires; a
-            // sub-screen of Settings still wins, because its handler is composed deeper than this.
-            selectedSection == MainSection.SETTINGS -> { restoreFocus = true; onSelectSection(MainSection.MORE) }
+            // Product Settings is a first-class item in the fixed five-item rail. Back from its root
+            // returns focus to that rail; it must never reveal OwnTV's hidden More hub.
+            selectedSection == MainSection.SETTINGS -> runCatching { sidebarFocus.requestFocus() }
             // Reached from a Search result: Back returns to Search once, its query, tab and row kept.
             searchReturn == selectedSection && focusedLayer != ShellLayer.SIDEBAR -> returnToSearch()
             focusedLayer == ShellLayer.SIDEBAR -> showExit = true
@@ -1147,9 +1143,13 @@ fun OwnTVShell(
                             fontCustomization = fontCustomization,
                             onSetFontCustomization = onSetFontCustomization,
                             onOpenPlaylist = { /* Phase 6: open setup/playlist */ },
-                            // Settings is reached through More now, so Back out of its root goes
-                            // back there rather than to the rail — one level out, not two.
-                            onBack = { restoreFocus = true; onSelectSection(MainSection.MORE) },
+                            onOpenDownloads = {
+                                restoreFocus = true
+                                onSelectSection(MainSection.DOWNLOADS)
+                            },
+                            // The product has no customer-facing More hub. Back from the Settings
+                            // root simply returns focus to the fixed five-item rail.
+                            onBack = { runCatching { sidebarFocus.requestFocus() } },
                             openEpgAdd = openEpgAdd,
                             onEpgAddConsumed = { openEpgAdd = false },
                             start = settingsStart,

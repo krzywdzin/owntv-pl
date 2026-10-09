@@ -99,11 +99,9 @@ fun OwnTVTheme(
     popupSizePercent: Int = PopupSizeScale.DEFAULT,
     content: @Composable () -> Unit,
 ) {
-    val useDark = when (themeMode) {
-        ThemeMode.DARK -> true
-        ThemeMode.LIGHT -> false
-        ThemeMode.SYSTEM -> systemInDarkTheme
-    }
+    // Midnight Glass defines one dark product theme. Keep the legacy preference in the signature
+    // for compatibility with OwnTV settings/storage, but the customer build renders dark consistently.
+    val useDark = true
 
     val colors = ownTvColors(
         isDark = useDark,

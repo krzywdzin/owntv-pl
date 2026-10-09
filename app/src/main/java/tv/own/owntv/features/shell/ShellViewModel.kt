@@ -338,7 +338,9 @@ class ShellViewModel(
     val selectedSection: StateFlow<MainSection> = _selectedSection.asStateFlow()
 
     fun selectSection(section: MainSection) {
-        _selectedSection.value = section
+        // More is an upstream hub, not a customer destination in TV Leśnik. Keep the enum and screen
+        // for internal compatibility, but collapse every attempted navigation to the product Settings.
+        _selectedSection.value = if (section == MainSection.MORE) MainSection.SETTINGS else section
     }
 
     /** Which browse sections currently show as icons in the rail (v4.3.0 — Nav menu customization).

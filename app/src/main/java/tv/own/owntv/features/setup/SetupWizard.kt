@@ -48,7 +48,7 @@ import tv.own.owntv.features.settings.StageFieldRow
 import tv.own.owntv.features.settings.StageSettingRow
 import tv.own.owntv.features.settings.SettingHelp
 import tv.own.owntv.features.shell.PendingShellRequest
-import tv.own.owntv.ui.components.BrandMark
+import tv.own.owntv.ui.components.ProductBrandMark
 import tv.own.owntv.ui.components.BrowseMode
 import tv.own.owntv.ui.components.OwnTVAvatar
 import tv.own.owntv.ui.components.OwnTVAvatars
@@ -435,7 +435,7 @@ private fun AppIconSwatches(icons: List<AppIcon>, chosen: AppIcon) {
                     .size(34.mpx)
                     .then(if (icon == chosen) Modifier.border(2.mpx, a.accent, RoundedCornerShape(9.mpx)) else Modifier),
                 contentAlignment = Alignment.Center,
-            ) { BrandMark(icon, 30.mpx, followAccent = false) }
+            ) { ProductBrandMark(30.mpx) }
         }
         if (icons.size > shown.size) {
             Text("+" + localizedInteger(icons.size - shown.size, grouping = false), style = stageText(17, 700), color = StageColors.Muted)

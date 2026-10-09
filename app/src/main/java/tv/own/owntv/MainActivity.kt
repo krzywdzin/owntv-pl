@@ -40,6 +40,10 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import tv.own.owntv.core.util.Perf
 import tv.own.owntv.core.launcher.LauncherDeepLink
+import tv.own.owntv.features.activation.ActivationScreen
+import tv.own.owntv.features.activation.SubscriptionExpiredScreen
+import tv.own.owntv.features.activation.SubscriptionUiState
+import tv.own.owntv.features.activation.SubscriptionViewModel
 import tv.own.owntv.features.profiles.ProfileGate
 import tv.own.owntv.features.profiles.ProfileGateSessionViewModel
 import tv.own.owntv.features.profiles.ProfilesViewModel
@@ -215,6 +219,7 @@ open class MainActivity : ComponentActivity() {
             }
 
             val viewModel: ShellViewModel = koinViewModel()
+            var serviceSetup by remember { mutableStateOf(false) }
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val accent by viewModel.accent.collectAsStateWithLifecycle()
             val customAccent by viewModel.customAccent.collectAsStateWithLifecycle()
@@ -250,6 +255,8 @@ open class MainActivity : ComponentActivity() {
             val isOnline by viewModel.isOnline.collectAsStateWithLifecycle()
 
             val profilesVm: ProfilesViewModel = koinViewModel()
+            val subscriptionVm: SubscriptionViewModel = koinViewModel()
+            val subscriptionState by subscriptionVm.state.collectAsStateWithLifecycle()
             val profileState by profilesVm.profileState.collectAsStateWithLifecycle()
             val profiles = (profileState as? tv.own.owntv.features.profiles.ProfileLoadState.Loaded)?.profiles.orEmpty()
             val profilesLoaded = profileState is tv.own.owntv.features.profiles.ProfileLoadState.Loaded
@@ -308,7 +315,10 @@ open class MainActivity : ComponentActivity() {
 
             // "Refresh on startup" — re-sync sources once the active profile is known.
             LaunchedEffect(activeProfileId) {
-                if ((activeProfileId ?: -1L) >= 0L) viewModel.checkAutoRefresh(includeStartup = true)
+                if ((activeProfileId ?: -1L) >= 0L) {
+                    viewModel.checkAutoRefresh(includeStartup = true)
+                    subscriptionVm.refreshNow()
+                }
             }
 
             OwnTVTheme(
@@ -409,11 +419,21 @@ open class MainActivity : ComponentActivity() {
                                 onCancel = { gateSession.cancelAddingProfile() },
                                 modifier = Modifier.fillMaxSize(),
                             )
-                            // First run (no profile yet) → full onboarding.
-                            profile < 0L -> Onboarding(
+                            // Hidden service path for a fresh box: holding OK on activation for 5 s
+                            // opens the existing manual setup without requiring the activation backend.
+                            profile < 0L && serviceSetup -> Onboarding(
                                 firstRun = true,
-                                onDone = { profileId -> gateSession.authenticateProfile(profileId) },
-                                onCancel = {},
+                                onDone = { profileId ->
+                                    serviceSetup = false
+                                    gateSession.authenticateProfile(profileId)
+                                },
+                                onCancel = { serviceSetup = false },
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                            // Customer first run: one decision — an 8-character activation code.
+                            profile < 0L -> ActivationScreen(
+                                onActivated = { profileId -> gateSession.authenticateProfile(profileId) },
+                                onServiceMode = { serviceSetup = true },
                                 modifier = Modifier.fillMaxSize(),
                             )
                             // A loaded list that does not contain the persisted active id is also
@@ -423,6 +443,11 @@ open class MainActivity : ComponentActivity() {
                                 firstRun = false,
                                 onDone = { profileId -> gateSession.authenticateProfile(profileId) },
                                 onCancel = {},
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                            subscriptionState is SubscriptionUiState.Expired -> SubscriptionExpiredScreen(
+                                supportPhone = (subscriptionState as SubscriptionUiState.Expired).supportPhone,
+                                onRetry = subscriptionVm::refreshNow,
                                 modifier = Modifier.fillMaxSize(),
                             )
                             // Run 2+ (or a single locked profile): "Who's watching?" — choose a profile or add one.

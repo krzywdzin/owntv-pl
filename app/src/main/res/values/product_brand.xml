@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">TV Leśnik</string>
+    <string name="brand_own" translatable="false">TV</string>
+    <string name="brand_tv" translatable="false">Leśnik</string>
+</resources>

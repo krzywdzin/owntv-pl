@@ -15,9 +15,10 @@ val localesCatalogueFile = rootProject.file("tools/i18n/locales.json")
 val packagedLocaleQualifiers: Set<String> = run {
     if (!localesCatalogueFile.isFile) return@run emptySet()
     val raw = groovy.json.JsonSlurper().parseText(localesCatalogueFile.readText()) as List<Map<String, Any>>
+    val productQualifiers = setOf("en", "pl")
     raw.mapNotNull { entry ->
         if ((entry["packaged"] as? Boolean) == true) entry["resourceQualifier"] as? String else null
-    }.toSet()
+    }.filter { it in productQualifiers }.toSet()
 }
 
 plugins {
@@ -43,8 +44,16 @@ android {
         if (f.isFile) f.inputStream().use { load(it) }
     }
 
+    // Neutral product layer: branding stays unchanged for now, but activation is configurable
+    // independently for local development and release deployments.
+    val activationBaseUrl =
+        System.getenv("ACTIVATION_BASE_URL")
+            ?: providers.gradleProperty("product.activationBaseUrl").orNull
+            ?: localSigningProps.getProperty("product.activationBaseUrl")
+            ?: ""
+
     defaultConfig {
-        applicationId = "tv.own.owntv"
+        applicationId = "pl.lesnik.tv"
         minSdk = 26
         targetSdk = 36
         // CI injects these from the git tag (see .github/workflows/android.yml) so releases never
@@ -55,7 +64,8 @@ android {
         // CI injects VERSION_NAME from the git tag for releases. The fallback is only ever used by
         // LOCAL builds (i.e. debug), so we pin it to 99.99.99 — that way a dev build is always "newer"
         // than any published release and the in-app updater never offers an "update" while developing.
-        versionName = System.getenv("VERSION_NAME") ?: "99.99.99"
+        versionName = (System.getenv("VERSION_NAME") ?: "99.99.99")
+            .let { if (it.endsWith("-klient")) it else "$it-klient" }
 
         // Opt-in local diagnostic APKs keep the rolling playback trace enabled even when they are
         // release-signed (so they can update an installed production build without changing its data).
@@ -89,6 +99,13 @@ android {
             ?: localSigningProps.getProperty("owntv.edgeKey")
             ?: ""
         buildConfigField("String", "TMDB_EDGE_KEY", "\"${edgeKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+
+        buildConfigField(
+            "String",
+            "ACTIVATION_BASE_URL",
+            "\"" + activationBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"") + "\"",
+        )
+        buildConfigField("String", "PRODUCT_LOCALE", "\"pl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -154,6 +171,11 @@ android {
 
     buildTypes {
         debug {
+            // Emulator-friendly local fallback. Physical TV boxes should pass product.activationBaseUrl
+            // with a LAN/server address they can actually reach.
+            if (activationBaseUrl.isBlank()) {
+                buildConfigField("String", "ACTIVATION_BASE_URL", "\"http://10.0.2.2:8787\"")
+            }
             // Pseudolocales (en-XA / ar-XB) are generated for the debug BuildType, NOT androidResources.
             // They are the Phase 3g QA sweep instrument; localeFilters below would otherwise strip them,
             // so the debug-only qualifiers are added back via the per-variant API in the androidComponents

@@ -21,9 +21,17 @@ class LanguageSettingsViewModel(
 
     /** Packaged + picker-visible catalogue rows, A–Z by English name. System default is not in this list. */
     val pickerRows: List<SupportedLocale> =
-        SupportedLocales.pickerRows.sortedBy { it.englishName.lowercase(Locale.ROOT) }
+        SupportedLocales.pickerRows
+            .filter { it.languageTag == PRODUCT_ENGLISH_TAG || it.languageTag == PRODUCT_POLISH_TAG }
+            .sortedBy { it.englishName.lowercase(Locale.ROOT) }
 
     fun setLocale(tag: String) {
+        if (tag != PRODUCT_ENGLISH_TAG && tag != PRODUCT_POLISH_TAG) return
         viewModelScope.launch { localeStore.set(tag) }
+    }
+
+    private companion object {
+        const val PRODUCT_ENGLISH_TAG = "en-US"
+        const val PRODUCT_POLISH_TAG = "pl"
     }
 }
