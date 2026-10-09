@@ -42,3 +42,14 @@ datę \`expires\` przy każdym żądaniu.
 
 Pliki \`activations.json\` i \`bindings.json\` zawierają dane operacyjne i nie mogą trafiać do
 publicznego repozytorium.
+
+
+## Produkcja
+
+Wersja release aplikacji nie ma deweloperskiego fallbacku URL. Ustaw jawnie produkcyjny
+`ACTIVATION_BASE_URL` wskazujący na **HTTPS**.
+
+Ten prosty serwer Pythona jest wystarczający do developmentu i wczesnych wdrożeń za reverse proxy.
+Nie wystawiaj portu `8787` bezpośrednio do Internetu. Postaw przed nim np. Caddy/Nginx z TLS,
+ogranicz dostęp do plików `activations.json` / `bindings.json` i wykonuj ich kopie zapasowe.
+Rate limiting jest liczony per adres IP; nagłówek urządzenia nie tworzy osobnego limitu.

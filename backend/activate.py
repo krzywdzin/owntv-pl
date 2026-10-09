@@ -21,6 +21,7 @@ HOST = os.getenv("ACTIVATION_HOST", "0.0.0.0")
 PORT = int(os.getenv("ACTIVATION_PORT", "8787"))
 MAX_ATTEMPTS = int(os.getenv("ACTIVATION_RATE_LIMIT", "10"))
 WINDOW_SECONDS = int(os.getenv("ACTIVATION_RATE_WINDOW", "60"))
+CODE_LENGTH = 8
 
 _lock = threading.Lock()
 _attempts: dict[str, deque[float]] = defaultdict(deque)
@@ -96,11 +97,18 @@ class ActivationHandler(BaseHTTPRequestHandler):
             return
 
         code = _normalize_code(unquote(parsed.path.removeprefix("/activate/")))
-        rate_key = f"{self.client_address[0]}:{device_id}"
+        # The product contract is an 8-character code. Reject other shapes before reading the
+        # activation store, and rate-limit by IP as specified — device IDs are client-controlled and
+        # therefore must not let a brute-force caller create a fresh bucket for every attempt.
+        rate_key = self.client_address[0]
 
         with _lock:
             if _rate_limited(rate_key):
                 self._json(HTTPStatus.TOO_MANY_REQUESTS, {"ok": False, "error": "rate_limited"})
+                return
+
+            if len(code) != CODE_LENGTH:
+                self._json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "bad_code"})
                 return
 
             activations = _load_json(DATA_FILE, {})
