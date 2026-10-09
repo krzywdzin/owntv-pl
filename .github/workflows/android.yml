@@ -234,6 +234,10 @@ jobs:
           # it as the env var it always did.
         run: |
           chmod +x ./gradlew
+          if [ "$IS_TAG" = "true" ] && [ -z "$KEYSTORE_FILE" ]; then
+            echo "::error::Signing secrets are required for a product release."
+            exit 1
+          fi
           if [ "$IS_TAG" = "true" ] && [ -z "$ACTIVATION_BASE_URL" ]; then
             echo "::error::ACTIVATION_BASE_URL secret is required for a product release."
             exit 1
