@@ -9,6 +9,7 @@
 
     <!-- In-app updates: hand the downloaded release APK to the system installer. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- MODIFY_AUDIO_SETTINGS is declared by :player-core, which owns VolumeBoost. -->
 
@@ -49,6 +50,17 @@
         android:theme="@style/Theme.OwnTV"
         android:usesCleartextTraffic="true"
         tools:targetApi="26">
+
+        <!-- Product box autostart. Android TV firmwares generally allow this boot launch; devices
+             with stricter background-activity policy can use the documented launcher/kiosk path instead. -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Exposes the downloaded update APK to the system installer. -->
         <provider
